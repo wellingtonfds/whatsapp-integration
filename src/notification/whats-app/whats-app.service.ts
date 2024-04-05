@@ -1,27 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { Notification } from '../notification.interface';
+import { NotificationDto } from '../notification.dto';
 
 @Injectable()
 export class WhatsAppService {
 
     constructor(private config: ConfigService) { }
 
-    private parseNotification(message: Notification) {
+    private parseNotification(message: NotificationDto) {
         return {
             messaging_product: "whatsapp",
             template: {
                 name: message.template,
                 language: {
-                    code: 'en_us'
-                }
+                    code: 'pt_br'
+                },
+                components: [{
+                    type: 'body',
+                    parameters: [
+                        {
+                            type: "text",
+                            text: "text-string"
+                        },
+                    ]
+                }]
             },
             to: message.to,
             type: "template"
         }
     }
-    public async sendMessage(message: Notification) {
+    public async sendMessage(message: NotificationDto) {
         const config = {
             method: 'post',
             url: this.config.get<string>('whatsApp.url'),
@@ -31,7 +40,13 @@ export class WhatsAppService {
             },
             data: this.parseNotification(message)
         };
-        await axios(config)
+        try {
+            const response = await axios(config)
+            console.log(response)
+
+        } catch (error) {
+            console.log('error', error)
+        }
 
     }
 
