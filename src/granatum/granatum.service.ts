@@ -1,16 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import moment from 'moment';
+import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { Lancamento } from './types/iLancamento';
+import moment from 'moment';
+import SocioBuilder from './helpers/socioBuilder';
+import ContaTipo from './types/contaTipo';
 import { Cliente } from './types/iCliente';
+import { Lancamento } from './types/iLancamento';
 import { Socio } from './types/iSocio';
 import LancamentoTipo from './types/lancamentoTipo';
-import ContaTipo from './types/contaTipo';
-import SocioBuilder from './helpers/socioBuilder';
 
 @Injectable()
-export class GranatumService 
-{
+export class GranatumService {
+
+    constructor(private config: ConfigService, private apiUrl: string) {
+        this.apiUrl = this.config.get<string>('granatum.apiUrl')
+    }
+
     async getSocios(): Promise<Socio[]> {
         try {
             const clientes = await this.getClientes();
@@ -30,11 +35,11 @@ export class GranatumService
     async getClientes(): Promise<Cliente[]> {
         try {
             const response = await axios.get<Cliente[]>(`${this.apiUrl}clientes`, {
-                params: { access_token: this.token }
+                params: { access_token: this.config.get<string>('granatum.token') }
             });
             return response.data;
         } catch (error: any) {
-            Acho que não é bom tratar este erro e retornar array vazio, não seria melhor disparar outro erro mostrando que deu problemas acessando clientes?
+            Acho que não é bom tratar este erro e retornar array vazio, não seria melhor disparar outro erro mostrando que deu problemas acessando clientes ?
             if (error.response && error.response.status === 401) {
                 // Tentativa de obter um novo token e repetir a requisição
                 //await this.obterNovoToken();
@@ -48,11 +53,11 @@ export class GranatumService
 
     async getLancamentos(tipos: string[]): Promise<Lancamento[]> {
         const contas = [ContaTipo.FluxoDeCaixa, ContaTipo.Caixa];
-        
+
         const dataAtual = moment();
         const dataInicial = dataAtual.clone().subtract(3, 'months').startOf('month').format('YYYY-MM-DD');
         const dataFinal = dataAtual.clone().endOf('month').format('YYYY-MM-DD');
-        
+
         const lancamentos = await this.getLancamentosFiltrados(tipos, contas, dataInicial, dataFinal);
 
         return lancamentos;
@@ -95,7 +100,7 @@ export class GranatumService
             });
             return response.data;
         } catch (error: any) {
-            Acho que não é bom tratar este erro e retornar array vazio, não seria melhor disparar outro erro mostrando que deu problemas acessando lançamentos?
+            Acho que não é bom tratar este erro e retornar array vazio, não seria melhor disparar outro erro mostrando que deu problemas acessando lançamentos ?
             if (error.response && error.response.status === 401) {
                 // Lógica de tratamento para erro 401
                 return [];
