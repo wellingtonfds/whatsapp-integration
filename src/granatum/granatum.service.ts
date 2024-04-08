@@ -12,7 +12,9 @@ import LancamentoTipo from './types/lancamentoTipo';
 @Injectable()
 export class GranatumService {
 
-    constructor(private config: ConfigService, private apiUrl: string) {
+    private apiUrl: string
+    private token: string
+    constructor(private config: ConfigService) {
         this.apiUrl = this.config.get<string>('granatum.apiUrl')
     }
 
@@ -39,7 +41,7 @@ export class GranatumService {
             });
             return response.data;
         } catch (error: any) {
-            Acho que não é bom tratar este erro e retornar array vazio, não seria melhor disparar outro erro mostrando que deu problemas acessando clientes ?
+            // Acho que não é bom tratar este erro e retornar array vazio, não seria melhor disparar outro erro mostrando que deu problemas acessando clientes ?
             if (error.response && error.response.status === 401) {
                 // Tentativa de obter um novo token e repetir a requisição
                 //await this.obterNovoToken();
@@ -100,7 +102,7 @@ export class GranatumService {
             });
             return response.data;
         } catch (error: any) {
-            Acho que não é bom tratar este erro e retornar array vazio, não seria melhor disparar outro erro mostrando que deu problemas acessando lançamentos ?
+            // Acho que não é bom tratar este erro e retornar array vazio, não seria melhor disparar outro erro mostrando que deu problemas acessando lançamentos ?
             if (error.response && error.response.status === 401) {
                 // Lógica de tratamento para erro 401
                 return [];

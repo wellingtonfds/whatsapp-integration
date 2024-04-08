@@ -12,4 +12,7 @@ export class NotificationDto {
 
     @ApiProperty()
     parameters?: string[]
+
+    @ApiProperty()
+    text?: string
 }
