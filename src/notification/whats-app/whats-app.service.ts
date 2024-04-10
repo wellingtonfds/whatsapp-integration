@@ -1,7 +1,9 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { HttpStatusCode } from 'axios';
+import addNinthDigitOnPhoneNumber from 'src/helper/add-ninth-digit-on-phone-number';
 import { NotificationDto } from '../notification.dto';
+import { WhatsAppMessageIncomingBody } from './types/whats-app-message-incoming';
 
 @Injectable()
 export class WhatsAppService {
@@ -26,7 +28,7 @@ export class WhatsAppService {
                     parameters
                 }]
             },
-            to: message.to,
+            to: addNinthDigitOnPhoneNumber(message.to),
         }
     }
 
@@ -35,7 +37,7 @@ export class WhatsAppService {
         return {
             messaging_product: "whatsapp",
             recipient_type: "individual",
-            to: message.to,
+            to: addNinthDigitOnPhoneNumber(message.to),
             type: "text",
             text: {
                 preview_url: false,
@@ -45,7 +47,7 @@ export class WhatsAppService {
     }
     private parseNotification(message: NotificationDto) {
 
-        if (!message.template || !message.text) {
+        if (!message?.template && !message?.text) {
             throw new HttpException('Os parâmetros estão incorretos, favor verificar', HttpStatusCode.BadRequest)
         }
 
@@ -76,6 +78,30 @@ export class WhatsAppService {
             console.log('error', error)
         }
 
+    }
+
+    public async webhookHandleMessages(whatsAppMessageIncomingBody: WhatsAppMessageIncomingBody) {
+        const { entry } = whatsAppMessageIncomingBody
+        const actions: Promise<void>[] = []
+        entry.forEach(item => {
+            item.changes.forEach(change => {
+                change.value.messages.forEach(msg => {
+                    const sendMsg = this.sendMessage({
+                        to: msg.from,
+                        text: 'Servidor respondendo vc'
+                    })
+                    actions.push(sendMsg)
+
+
+                })
+            })
+        })
+
+        Promise.all(actions)
+        // messages.map(message => {
+        //     console.log('mess', message)
+
+        // })
     }
 
 }

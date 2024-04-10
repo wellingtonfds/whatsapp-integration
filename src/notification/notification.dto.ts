@@ -8,7 +8,7 @@ export class NotificationDto {
     to: string
 
     @ApiProperty()
-    template: string
+    template?: string
 
     @ApiProperty()
     parameters?: string[]
