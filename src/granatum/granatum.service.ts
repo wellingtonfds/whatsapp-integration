@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import moment from 'moment';
+import { default as dayjs } from 'dayjs';
 import SocioBuilder from './helpers/socioBuilder';
 import ContaTipo from './types/contaTipo';
 import { Cliente } from './types/iCliente';
 import { Lancamento } from './types/iLancamento';
 import { Socio } from './types/iSocio';
 import LancamentoTipo from './types/lancamentoTipo';
+
 
 @Injectable()
 export class GranatumService {
@@ -56,8 +57,8 @@ export class GranatumService {
     async getLancamentos(tipos: string[]): Promise<Lancamento[]> {
         const contas = [ContaTipo.FluxoDeCaixa, ContaTipo.Caixa];
 
-        const dataAtual = moment();
-        const dataInicial = dataAtual.clone().subtract(3, 'months').startOf('month').format('YYYY-MM-DD');
+        const dataAtual = dayjs()
+        const dataInicial = dataAtual.clone().subtract(3, 'months').startOf('month').format('YYYY-MM-DD')
         const dataFinal = dataAtual.clone().endOf('month').format('YYYY-MM-DD');
 
         const lancamentos = await this.getLancamentosFiltrados(tipos, contas, dataInicial, dataFinal);
