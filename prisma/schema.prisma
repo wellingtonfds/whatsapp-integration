@@ -21,7 +21,7 @@ model Notification {
    message     Json
    to          String
    answered    Boolean @default(false)
-   sent        DateTime 
+   sent        DateTime? 
    createdAt   DateTime           @default(now())
    updatedAt   DateTime           @updatedAt
 }
