@@ -10,7 +10,23 @@ export class NotificationRepository extends PrismaClient implements OnModuleInit
 
     async create(data: Prisma.NotificationCreateInput): Promise<Notification> {
 
-        return await this.notification.create({ data })
+        try {
+            const not = await this.notification.create({ data })
+            return not
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    async getMessagesNotProcessed(): Promise<Notification[]> {
+        const response = await this.notification.findMany({
+            where: {
+                sent: null
+            }
+        })
+        return response
+
+
     }
 
 }

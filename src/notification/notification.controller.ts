@@ -1,6 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
-import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationService } from './notification.service';
 import { WhatsAppService } from './whats-app/whats-app.service';
@@ -19,13 +18,29 @@ export class NotificationController {
         return notificationData
     }
 
-    @Post()
-    public async createNotification(@Body() data: CreateNotificationDto) {
-        await this.notificationService.create({
-            type: data.type,
-            message: data.message,
+    @Post('create')
+    @ApiBody({ type: NotificationDto })
+    public async createNotification(@Body() data: NotificationDto) {
+        const message = data.template ? {
+            template: data.template,
+            params: data.parameters
+        } : { text: data.text }
+
+        this.notificationService.create({
+            type: data.template ? 'TEMPLATE' : 'TEXT',
+            message,
             to: data.to
         })
+        return 'ok'
+    }
+
+
+    @Get('processing')
+    /**
+     * processingMessages
+     */
+    public processingMessages() {
+        this.notificationService.processingMessages()
     }
 
 }

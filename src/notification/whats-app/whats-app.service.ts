@@ -57,9 +57,6 @@ export class WhatsAppService {
         return this.parseNotificationTextOnly(message)
     }
 
-
-
-
     public async sendMessage(message: NotificationDto) {
         const config = {
             method: 'post',
