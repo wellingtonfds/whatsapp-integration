@@ -17,6 +17,7 @@ export class GranatumService {
     private token: string
     constructor(private config: ConfigService) {
         this.apiUrl = this.config.get<string>('granatum.apiUrl')
+        this.token = this.config.get<string>('granatum.token')
     }
 
     async getSocios(): Promise<Socio[]> {
@@ -38,7 +39,7 @@ export class GranatumService {
     async getClientes(): Promise<Cliente[]> {
         try {
             const response = await axios.get<Cliente[]>(`${this.apiUrl}clientes`, {
-                params: { access_token: this.config.get<string>('granatum.token') }
+                params: { access_token: this.token }
             });
             return response.data;
         } catch (error: any) {
