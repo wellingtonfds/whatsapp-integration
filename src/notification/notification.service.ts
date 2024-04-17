@@ -25,11 +25,13 @@ export class NotificationService {
         const msgs = await this.notificationRepository.getMessagesNotProcessed()
 
         msgs.map(msg => {
-            console.log('msg.message', msg.message)
-            // this.sendNotification({
-            //     to: msg.to,
-            //     template: msg.message
-            // })
+            const message = msg.message as { text?: string, template?: string, parameters?: string[] }
+            this.sendNotification({
+                ...msg,
+                text: message?.text,
+                template: message?.template,
+                parameters: message?.parameters
+            })
         })
         console.log(msgs)
     }
