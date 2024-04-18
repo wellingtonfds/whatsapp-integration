@@ -6,15 +6,18 @@ import granatumConfig from './granatum/granatum.config';
 import { GranatumModule } from './granatum/granatum.module';
 import { NotificationModule } from './notification/notification.module';
 import whatsAppConfig from './notification/whats-app/whats-app.config';
+import paymentConfig from './payment/payment.config';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [whatsAppConfig, granatumConfig]
+      load: [whatsAppConfig, granatumConfig, paymentConfig]
     }),
     NotificationModule,
-    GranatumModule
+    GranatumModule,
+    PaymentModule
   ],
   controllers: [AppController],
   providers: [AppService],
