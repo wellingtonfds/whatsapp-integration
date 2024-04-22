@@ -1,6 +1,6 @@
 export interface Socio {
     enviar: boolean;
-    id: string;
+    id: number;
     nome: string;
     telefone: string;
     telefoneInput: string;
@@ -8,4 +8,5 @@ export interface Socio {
     mensagem: string;
     valoresDetalhados: Map<string, any>;
     valor: string;
+    idsLancamentos: number[];
 }

@@ -1,5 +1,5 @@
 export interface Cliente {
-    id: string;
+    id: number;
     nome: string;
     telefone: string;
     observacao: string;

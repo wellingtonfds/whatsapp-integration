@@ -1,5 +1,6 @@
 export interface Lancamento {
-    pessoa_id: string;
+    id: number;
+    pessoa_id: number;
     data_vencimento: string;
     valor: string;
     descricao: string;
