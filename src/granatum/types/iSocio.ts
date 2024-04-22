@@ -6,7 +6,6 @@ export interface Socio {
     telefoneInput: string;
     valorTotal: number;
     mensagem: string;
-    valoresDetalhados: Map<string, any>;
     valor: string;
     idsLancamentos: number[];
 }

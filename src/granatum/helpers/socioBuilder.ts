@@ -5,6 +5,7 @@ import LancamentoTipo from '../types/lancamentoTipo';
 
 class SocioBuilder {
     private socio: Socio
+    private valoresDetalhados: Map<string, any>
 
     constructor() {
         this.socio = {
@@ -16,9 +17,10 @@ class SocioBuilder {
             valorTotal: 0,
             mensagem: '',
             valor: '',
-            valoresDetalhados: new Map(),
             idsLancamentos: []
         }
+
+        this.valoresDetalhados = new Map()
     }
 
     preencherDados(cliente: Cliente, lancamentosCliente: Lancamento[], tipos: string[]): Socio {
@@ -45,9 +47,7 @@ class SocioBuilder {
             throw new Error("Não há template de mensagem definido para este status de lançamento")
         }
 
-        this.socio.valorTotal = 0
-
-        for (let [periodo, valores] of this.socio.valoresDetalhados) {
+        for (let [periodo, valores] of this.valoresDetalhados) {
             stringBuilder.push(`*${periodo}*\n`)
             let valorTotalPeriodo = 0
 
@@ -70,7 +70,6 @@ class SocioBuilder {
                 }
             }
 
-            this.socio.valorTotal += valorTotalPeriodo
             stringBuilder.push(`*Total do mês: ${this.formatarValorComoMoeda(valorTotalPeriodo)}*\n\n`)
         }
 
@@ -121,8 +120,9 @@ class SocioBuilder {
 
     private processarLancamentos(lancamentosCliente: Lancamento[]): void {
         this.socio.valorTotal = 0
-        this.socio.valoresDetalhados = new Map()
         this.socio.idsLancamentos = []
+
+        this.valoresDetalhados = new Map()
 
         lancamentosCliente.forEach(lancamento => {
             const dataVencimento = new Date(lancamento.data_vencimento)
@@ -131,20 +131,22 @@ class SocioBuilder {
 
             const periodo = `${mes}/${dataVencimento.getFullYear()}`
 
-            if (!this.socio.valoresDetalhados.has(periodo)) {
-                this.socio.valoresDetalhados.set(periodo, {})
+            if (!this.valoresDetalhados.has(periodo)) {
+                this.valoresDetalhados.set(periodo, {})
             }
 
             const valor = parseFloat(lancamento.valor)
             const desc = lancamento.descricao
 
-            const valoresPeriodo = this.socio.valoresDetalhados.get(periodo)
+            const valoresPeriodo = this.valoresDetalhados.get(periodo)
             valoresPeriodo[desc] = (valoresPeriodo[desc] || 0) + valor
 
             this.socio.valorTotal += valor
 
             this.socio.idsLancamentos.push(lancamento.id)
         });
+
+        this.socio.valorTotal = parseFloat(this.socio.valorTotal.toFixed(2));
     }
 }
 
