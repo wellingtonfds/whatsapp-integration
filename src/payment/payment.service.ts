@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import https from 'https';
+import { PaymentList } from './types/register-many-payment-pix';
 import { Payment } from './types/register-payment-pix';
 @Injectable()
 export class PaymentService {
@@ -50,12 +51,27 @@ export class PaymentService {
         }
     }
 
-    public registerPix(payment: Payment) {
 
-        axios.post(this.apiUrl, payment, {
-
+    private async sendRequest<t, r>(url: string, method: 'post' | 'get' | 'put', data: t): Promise<r> {
+        const headers = await this.getToken()
+        return await axios({
+            method,
+            headers,
+            data,
+            url
         })
+    }
+    public async registerPix(payment: Payment) {
+        const response = await this.sendRequest<Payment, Promise<{ data: string }>>(this.apiUrl, 'post', payment)
+        return response
+    }
 
+    public async registerManyPix(description: string, payments: Payment[]) {
+        const payload: PaymentList = {
+            descricao: description,
+            cobsv: payments
+        }
+        const response = await this.sendRequest(this.apiUrl, 'put', payload)
     }
 
 }

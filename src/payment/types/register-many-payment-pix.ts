@@ -2,7 +2,7 @@ import { Payment } from "./register-payment-pix";
 
 
 
-interface PaymentList {
+export interface PaymentList {
     descricao: string;
     cobsv: Payment[];
 }
