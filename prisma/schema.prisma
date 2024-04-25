@@ -30,3 +30,14 @@ enum NotificationType {
   TEMPLATE
   TEXT
 }
+
+model Bill {
+  id          BigInt    @id @default(autoincrement())
+  crmId       Int
+  value       Decimal
+  paymentIdList String
+  paymentDate DateTime?
+  sent        Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
