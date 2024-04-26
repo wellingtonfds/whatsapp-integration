@@ -9,6 +9,7 @@ import whatsAppConfig from './notification/whats-app/whats-app.config';
 import paymentConfig from './payment/payment.config';
 import { PaymentModule } from './payment/payment.module';
 import { BillModule } from './bill/bill.module';
+import { BillNotificationModule } from './bill-notification/bill-notification.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { BillModule } from './bill/bill.module';
     NotificationModule,
     GranatumModule,
     PaymentModule,
-    BillModule
+    BillModule,
+    BillNotificationModule
   ],
   controllers: [AppController],
   providers: [AppService],

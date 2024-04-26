@@ -22,6 +22,7 @@ model Notification {
    to          String
    answered    Boolean @default(false)
    sent        DateTime? 
+   billNotification BillNotification[]
    createdAt   DateTime           @default(now())
    updatedAt   DateTime           @updatedAt
 }
@@ -37,7 +38,17 @@ model Bill {
   value       Decimal
   paymentIdList String
   paymentDate DateTime?
-  sent        Boolean            @default(false)
+  billNotification BillNotification[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model BillNotification {
+  id          BigInt    @id @default(autoincrement())
+  billId      BigInt
+  bill        Bill      @relation(fields: [billId], references: [id])
+  notificationId   BigInt
+  notification     Notification @relation(fields: [notificationId], references: [id])
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 }
