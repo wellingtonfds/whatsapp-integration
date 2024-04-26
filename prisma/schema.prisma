@@ -44,11 +44,11 @@ model Bill {
 }
 
 model BillNotification {
-  id          BigInt    @id @default(autoincrement())
   billId      BigInt
   bill        Bill      @relation(fields: [billId], references: [id])
   notificationId   BigInt
   notification     Notification @relation(fields: [notificationId], references: [id])
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
+  @@id([billId, notificationId])
 }
