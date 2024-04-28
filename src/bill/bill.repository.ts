@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Bill, Prisma, PrismaClient } from "@prisma/client";
 
 
 @Injectable()
@@ -9,8 +9,8 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
         await this.$connect()
     }
 
-    public create(bill: Prisma.BillCreateInput, notification: Prisma.NotificationCreateInput) {
-        this.bill.create({
+    public async create(bill: Prisma.BillCreateInput, notification: Prisma.NotificationCreateInput): Promise<Bill> {
+        const createdBill = await this.bill.create({
             data: {
                 ...bill,
                 billNotification: {
@@ -22,6 +22,7 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
                 }
             }
         })
+        return createdBill
     }
 
     public async getBillWithoutMessages() {
