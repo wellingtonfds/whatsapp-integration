@@ -15,4 +15,10 @@ describe('BillNotificationService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  it('should be create a bil', () => {
+    expect(service).toBeDefined();
+  });
+
+
 });

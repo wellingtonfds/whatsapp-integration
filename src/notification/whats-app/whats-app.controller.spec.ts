@@ -1,5 +1,7 @@
+import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WhatsAppController } from './whats-app.controller';
+import { WhatsAppService } from './whats-app.service';
 
 describe('WhatsAppController', () => {
   let controller: WhatsAppController;
@@ -7,6 +9,9 @@ describe('WhatsAppController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WhatsAppController],
+      imports: [ConfigModule],
+      providers: [WhatsAppService],
+
     }).compile();
 
     controller = module.get<WhatsAppController>(WhatsAppController);

@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WhatsAppService } from './whats-app.service';
 
@@ -7,6 +8,7 @@ describe('WhatsAppService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [WhatsAppService],
+      imports: [ConfigModule],
     }).compile();
 
     service = module.get<WhatsAppService>(WhatsAppService);
