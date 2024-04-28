@@ -1,5 +1,6 @@
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { BillModule } from '../bill/bill.module';
 import { GranatumController } from './granatum.controller';
 import { GranatumService } from './granatum.service';
 
@@ -11,7 +12,7 @@ describe('GranatumController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [GranatumController],
       providers: [GranatumService],
-      imports: [ConfigModule]
+      imports: [ConfigModule, BillModule]
     }).compile();
 
     controller = module.get<GranatumController>(GranatumController);

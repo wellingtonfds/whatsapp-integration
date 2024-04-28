@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { default as dayjs } from 'dayjs';
+import { BillService } from '../bill/bill.service';
 import SocioBuilder from './helpers/socioBuilder';
 import ContaTipo from './types/contaTipo';
 import { Cliente } from './types/iCliente';
@@ -15,7 +16,7 @@ export class GranatumService {
 
     private apiUrl: string
     private token: string
-    constructor(private config: ConfigService) {
+    constructor(private config: ConfigService, private billService: BillService) {
         this.apiUrl = this.config.get<string>('granatum.apiUrl')
         this.token = this.config.get<string>('granatum.token')
     }
@@ -28,6 +29,8 @@ export class GranatumService {
             return clientes.map((cliente: Cliente) => {
                 const lancamentosCliente = lancamentos.filter((lanc: Lancamento) => lanc.pessoa_id === cliente.id);
                 const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente, tipos);
+                // Gravar os sócios aqui
+                // this.billService.create()
                 return socioObj;
             });
         } catch (error: any) {
