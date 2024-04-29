@@ -38,6 +38,12 @@ model Bill {
   value       Decimal
   paymentIdList String
   paymentDate DateTime?
+  pixTaxId      String
+  pixKey        String?
+  pixQrCode     String?
+  pixCreatedAt  DateTime?
+  paymentValue  Decimal?
+  pixExpiration DateTime?
   billNotification BillNotification[]
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
