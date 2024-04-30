@@ -16,4 +16,8 @@ export class BillService {
         return await this.billRepository.create(bill, notification)
     }
 
+    public async getBillWithoutPixKey() {
+        return await this.billRepository.getBillWithoutPixKey()
+    }
+
 }

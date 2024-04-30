@@ -22,7 +22,7 @@ model Notification {
    to          String
    answered    Boolean @default(false)
    sent        DateTime? 
-   billNotification BillNotification[]
+   bill        Bill[] @relation("BillNotification")
    createdAt   DateTime           @default(now())
    updatedAt   DateTime           @updatedAt
 }
@@ -35,6 +35,9 @@ enum NotificationType {
 model Bill {
   id          BigInt    @id @default(autoincrement())
   crmId       Int
+  clientName  String
+  ClientPhone String
+  CPF         String
   value       Decimal
   paymentIdList String
   paymentDate DateTime?
@@ -44,17 +47,7 @@ model Bill {
   pixCreatedAt  DateTime?
   paymentValue  Decimal?
   pixExpiration DateTime?
-  billNotification BillNotification[]
+  notification  Notification[] @relation("BillNotification")
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
-}
-
-model BillNotification {
-  billId      BigInt
-  bill        Bill      @relation(fields: [billId], references: [id])
-  notificationId   BigInt
-  notification     Notification @relation(fields: [notificationId], references: [id])
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  @@id([billId, notificationId])
 }
