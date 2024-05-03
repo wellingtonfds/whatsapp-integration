@@ -31,7 +31,10 @@ export class GranatumService {
                 const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente, tipos);
                 // Gravar os sócios aqui
                 // Esse methodo só deverá ser chamado uma vez, ou se não precisar adicionar um controle para não dubplicar
-                // this.billService.create()
+                // this.billService.create({
+                //     bill: {},
+                //     notification: {}
+                // })
                 return socioObj;
             });
         } catch (error: any) {
