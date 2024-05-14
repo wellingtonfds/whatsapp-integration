@@ -19,10 +19,10 @@ model Notification {
    id          BigInt    @id @default(autoincrement())
    type        NotificationType
    message     Json
-   to          String
    answered    Boolean @default(false)
-   sent        DateTime? 
-   bill        Bill[] @relation("BillNotification")
+   sent        DateTime?
+   contact   Contact @relation(fields: [contactId], references: [id])
+   contactId BigInt 
    createdAt   DateTime           @default(now())
    updatedAt   DateTime           @updatedAt
 }
@@ -34,10 +34,6 @@ enum NotificationType {
 
 model Bill {
   id          BigInt    @id @default(autoincrement())
-  crmId       Int
-  clientName  String
-  ClientPhone String
-  CPF         String
   value       Decimal
   paymentIdList String
   paymentDate DateTime?
@@ -47,7 +43,22 @@ model Bill {
   pixCreatedAt  DateTime?
   paymentValue  Decimal?
   pixExpiration DateTime?
-  notification  Notification[] @relation("BillNotification")
+  contact   Contact @relation(fields: [contactId], references: [id])
+  contactId BigInt
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+
+model Contact {
+  id          BigInt    @id @default(autoincrement())
+  phoneNumber String
+  CPF         String
+  name        String?
+  crmId       Int?
+  email       String?
+  notification  Notification[]
+  bill        Bill[] 
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 }

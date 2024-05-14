@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
-import { Notification, Prisma, PrismaClient } from "@prisma/client";
+import { Contact, Notification, PrismaClient } from "@prisma/client";
+import { CreateNotificationDto } from "./dto/create-notification.dto";
 
 
 
@@ -10,10 +11,16 @@ export class NotificationRepository extends PrismaClient implements OnModuleInit
         await this.$connect()
     }
 
-    async create(data: Prisma.NotificationCreateInput): Promise<Notification> {
+    async create(data: CreateNotificationDto, contact: Contact): Promise<Notification> {
 
         try {
-            const not = await this.notification.create({ data })
+            const not = await this.notification.create({
+                data: {
+                    message: data.message,
+                    type: data.type,
+                    contactId: contact.id
+                }
+            })
             return not
         } catch (e) {
             console.log(e)

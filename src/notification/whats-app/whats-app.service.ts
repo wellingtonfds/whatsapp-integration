@@ -77,6 +77,33 @@ export class WhatsAppService {
 
     }
 
+    public answerContact(phoneNumber: string, message: string) {
+        const sentBills = () => {
+            // find bill not paid yet
+            // send notification
+        }
+        const defaultMessage = () => {
+
+            // send template with menu
+        }
+        const commands = {
+            1: sentBills
+        }
+
+        try {
+            commands[message]()
+        } catch {
+            defaultMessage()
+        }
+
+
+
+
+
+
+    }
+
+
     public async webhookHandleMessages(whatsAppMessageIncomingBody: WhatsAppMessageIncomingBody) {
         const { entry } = whatsAppMessageIncomingBody
         const actions: Promise<void>[] = []

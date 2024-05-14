@@ -5,7 +5,7 @@ export class NotificationDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    to: string
+    contactCpf: string
 
     @ApiProperty()
     template?: string

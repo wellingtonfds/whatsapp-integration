@@ -21,16 +21,8 @@ export class NotificationController {
     @Post('create')
     @ApiBody({ type: NotificationDto })
     public async createNotification(@Body() data: NotificationDto) {
-        const message = data.template ? {
-            template: data.template,
-            params: data.parameters
-        } : { text: data.text }
 
-        this.notificationService.create({
-            type: data.template ? 'TEMPLATE' : 'TEXT',
-            message,
-            to: data.to
-        })
+        this.notificationService.create(data)
         return 'ok'
     }
 
