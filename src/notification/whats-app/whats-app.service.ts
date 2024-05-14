@@ -1,50 +1,51 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { HttpStatusCode } from 'axios';
-import { NotificationDto } from '../dto/notification.dto';
+import addNinthDigitOnPhoneNumber from 'src/helper/add-ninth-digit-on-phone-number';
 import { WhatsAppMessageIncomingBody } from './types/whats-app-message-incoming';
+import { WhatsAppSendMessage } from './types/whats-app-send-message';
 
 @Injectable()
 export class WhatsAppService {
 
     constructor(private config: ConfigService) { }
 
-    private parseNotificationTemplate(message: NotificationDto) {
+    private parseNotificationTemplate(message: WhatsAppSendMessage) {
         const parameters = message.parameters.map(para => ({
             type: 'text',
             text: para
         }))
-        // return {
-        //     messaging_product: "whatsapp",
-        //     type: "template",
-        //     template: {
-        //         name: message.template,
-        //         language: {
-        //             code: 'pt_br'
-        //         },
-        //         components: [{
-        //             type: 'body',
-        //             parameters
-        //         }]
-        //     },
-        //     to: addNinthDigitOnPhoneNumber(message.to),
-        // }
+        return {
+            messaging_product: "whatsapp",
+            type: "template",
+            template: {
+                name: message.template,
+                language: {
+                    code: 'pt_br'
+                },
+                components: [{
+                    type: 'body',
+                    parameters
+                }]
+            },
+            to: addNinthDigitOnPhoneNumber(message.to),
+        }
     }
 
-    private parseNotificationTextOnly(message: NotificationDto) {
+    private parseNotificationTextOnly(message: WhatsAppSendMessage) {
 
-        // return {
-        //     messaging_product: "whatsapp",
-        //     recipient_type: "individual",
-        //     to: addNinthDigitOnPhoneNumber(message.to),
-        //     type: "text",
-        //     text: {
-        //         preview_url: false,
-        //         body: message.text
-        //     }
-        // }
+        return {
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: addNinthDigitOnPhoneNumber(message.to),
+            type: "text",
+            text: {
+                preview_url: false,
+                body: message.text
+            }
+        }
     }
-    private parseNotification(message: NotificationDto) {
+    private parseNotification(message: WhatsAppSendMessage) {
 
         if (!message?.template && !message?.text) {
             throw new HttpException('Os parâmetros estão incorretos, favor verificar', HttpStatusCode.BadRequest)
@@ -56,7 +57,7 @@ export class WhatsAppService {
         return this.parseNotificationTextOnly(message)
     }
 
-    public async sendMessage(message: NotificationDto) {
+    public async sendMessage(message: WhatsAppSendMessage) {
         const config = {
             method: 'post',
             url: this.config.get<string>('whatsApp.url'),

@@ -4,7 +4,7 @@ import { HttpStatusCode } from 'axios';
 import { ContactService } from 'src/contact/contact.service';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationRepository } from './notification.repository';
-import { SendNotification } from './types/send-notification';
+import { NotificationWithContact } from './types/notification-with-contact';
 import { WhatsAppService } from './whats-app/whats-app.service';
 
 @Injectable()
@@ -15,8 +15,23 @@ export class NotificationService {
         private whatsAppService: WhatsAppService,
         private contactService: ContactService
     ) { }
-    async sendNotification(message: SendNotification) {
-        // await this.whatsAppService.sendMessage(message)
+
+
+    public async sendNotification({ contact, ...msg }: NotificationWithContact) {
+        const message = msg.message as { text?: string, template?: string, parameters?: string[] }
+        await this.whatsAppService.sendMessage({
+            ...msg,
+            text: message?.text,
+            template: message?.template,
+            parameters: message?.parameters,
+            to: contact.phoneNumber
+        })
+        await this.update({
+            ...msg,
+            sent: new Date()
+        })
+
+
     }
 
     async create({ contactCpf, ...data }: NotificationDto): Promise<Notification> {
@@ -37,19 +52,17 @@ export class NotificationService {
         return response
     }
 
+    async update(notification: Notification): Promise<Notification> {
+        return this.notificationRepository.update(notification)
+    }
+
 
     async processingMessages() {
         const msgs = await this.notificationRepository.getMessagesNotProcessed()
 
         msgs.map(msg => {
-            const message = msg.message as { text?: string, template?: string, parameters?: string[] }
-            this.sendNotification({
-                ...msg,
-                text: message?.text,
-                template: message?.template,
-                parameters: message?.parameters,
-                contact: msg.contact
-            })
+
+            this.sendNotification(msg)
         })
         console.log(msgs)
     }

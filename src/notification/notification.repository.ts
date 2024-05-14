@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
-import { Contact, Notification, PrismaClient } from "@prisma/client";
+import { Contact, Notification, Prisma, PrismaClient } from "@prisma/client";
 import { CreateNotificationDto } from "./dto/create-notification.dto";
 import { NotificationWithContact } from "./types/notification-with-contact";
 
@@ -13,7 +13,14 @@ export class NotificationRepository extends PrismaClient implements OnModuleInit
     }
 
 
-
+    async update(notification: Prisma.NotificationUpdateInput): Promise<Notification> {
+        return this.notification.update({
+            where: {
+                id: BigInt(notification.id.toString())
+            },
+            data: notification
+        })
+    }
 
     async create(data: CreateNotificationDto, contact: Contact): Promise<Notification> {
 
