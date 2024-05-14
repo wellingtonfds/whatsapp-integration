@@ -9,14 +9,7 @@ export class NotificationController {
 
     constructor(private whatsAppService: WhatsAppService, private notificationService: NotificationService) { }
 
-    @Post()
-    @ApiBody({ type: NotificationDto })
-    public async sendNotification(@Body() notificationData: NotificationDto) {
-        await this.whatsAppService.sendMessage({
-            ...notificationData
-        })
-        return notificationData
-    }
+
 
     @Post('create')
     @ApiBody({ type: NotificationDto })

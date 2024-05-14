@@ -4,6 +4,7 @@ import { HttpStatusCode } from 'axios';
 import { ContactService } from 'src/contact/contact.service';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationRepository } from './notification.repository';
+import { SendNotification } from './types/send-notification';
 import { WhatsAppService } from './whats-app/whats-app.service';
 
 @Injectable()
@@ -14,8 +15,8 @@ export class NotificationService {
         private whatsAppService: WhatsAppService,
         private contactService: ContactService
     ) { }
-    async sendNotification(message: NotificationDto) {
-        await this.whatsAppService.sendMessage(message)
+    async sendNotification(message: SendNotification) {
+        // await this.whatsAppService.sendMessage(message)
     }
 
     async create({ contactCpf, ...data }: NotificationDto): Promise<Notification> {
@@ -31,7 +32,7 @@ export class NotificationService {
 
         const response = await this.notificationRepository.create({
             message,
-            type: data.template ? 'TEMPLATE' : 'TEXT'
+            type: data.template === 'TEMPLATE' ? 'TEMPLATE' : 'TEXT'
         }, contact)
         return response
     }
@@ -47,7 +48,7 @@ export class NotificationService {
                 text: message?.text,
                 template: message?.template,
                 parameters: message?.parameters,
-                contactCpf: ''
+                contact: msg.contact
             })
         })
         console.log(msgs)

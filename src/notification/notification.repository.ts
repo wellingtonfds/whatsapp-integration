@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Contact, Notification, PrismaClient } from "@prisma/client";
 import { CreateNotificationDto } from "./dto/create-notification.dto";
+import { NotificationWithContact } from "./types/notification-with-contact";
 
 
 
@@ -10,6 +11,9 @@ export class NotificationRepository extends PrismaClient implements OnModuleInit
     async onModuleInit() {
         await this.$connect()
     }
+
+
+
 
     async create(data: CreateNotificationDto, contact: Contact): Promise<Notification> {
 
@@ -27,10 +31,13 @@ export class NotificationRepository extends PrismaClient implements OnModuleInit
         }
     }
 
-    async getMessagesNotProcessed(): Promise<Notification[]> {
+    async getMessagesNotProcessed(): Promise<NotificationWithContact[]> {
         const response = await this.notification.findMany({
             where: {
                 sent: null
+            },
+            include: {
+                contact: true
             }
         })
         return response
