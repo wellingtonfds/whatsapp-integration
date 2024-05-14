@@ -13,9 +13,6 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
         const createdBill = await this.bill.create({
             data: {
                 ...bill,
-                notification: {
-                    create: notification
-                }
             }
         })
         return createdBill
@@ -23,9 +20,7 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
 
     public async getBillWithoutMessages() {
         return this.bill.findMany({
-            include: {
-                notification: false
-            }
+
         })
     }
 
@@ -37,9 +32,7 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
                 pixCreatedAt: null,
                 pixExpiration: null
             },
-            include: {
-                notification: true
-            }
+
         })
     }
 
