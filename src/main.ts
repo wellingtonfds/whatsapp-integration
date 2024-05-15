@@ -10,7 +10,9 @@ async function bootstrap() {
     .setTitle('Tesouraria Digital')
     .setDescription('Integrações')
     .setVersion('1.0')
+    .addApiKey({ type: 'apiKey', name: 'Api-Key', in: 'header' }, 'Api-Key')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   await app.listen(3000);

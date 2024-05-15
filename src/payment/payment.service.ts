@@ -26,7 +26,6 @@ export class PaymentService {
             keepAlive: true,
             rejectUnauthorized: false
         })
-        // enviar token .pem
         const config = {
             agent,
             method: 'post',

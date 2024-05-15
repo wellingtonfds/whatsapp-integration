@@ -9,11 +9,9 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
         await this.$connect()
     }
 
-    public async create(bill: Prisma.BillCreateInput, notification: Prisma.NotificationCreateInput): Promise<Bill> {
+    public async create(bill: Prisma.BillCreateInput): Promise<Bill> {
         const createdBill = await this.bill.create({
-            data: {
-                ...bill,
-            }
+            data: bill
         })
         return createdBill
     }
@@ -32,6 +30,9 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
                 pixCreatedAt: null,
                 pixExpiration: null
             },
+            include: {
+                contact: true
+            }
 
         })
     }
