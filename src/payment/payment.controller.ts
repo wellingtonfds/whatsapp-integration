@@ -1,14 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
-import { BillService } from '../bill/bill.service';
+import { PaymentService } from './payment.service';
 
 @Controller('payment')
 export class PaymentController {
 
-    constructor(private billService: BillService) { }
+    constructor(private paymentService: PaymentService) { }
 
     @Get('test')
     public async teste() {
-        console.log(await this.billService.getBillWithoutPixKey())
+        const response = await this.paymentService.getToken()
+        return response
+
     }
 
 }

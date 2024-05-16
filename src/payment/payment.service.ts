@@ -4,6 +4,7 @@ import axios from 'axios';
 import https from 'https';
 import { PaymentList } from './types/register-many-payment-pix';
 import { Payment } from './types/register-payment-pix';
+
 @Injectable()
 export class PaymentService {
 
@@ -21,16 +22,18 @@ export class PaymentService {
             }
         }
         const agent = new https.Agent({
-            cert: this.config.get('sicoob.cert'),
-            key: this.config.get('sicoob.key'),
+
             keepAlive: true,
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
+            pfx: this.config.get('sicoob.cert'),
+            passphrase: this.config.get('sicoob.key'),
         })
         const config = {
             agent,
             method: 'post',
+
             maxBodyLength: Infinity,
-            url: `${this.config.get('sicoob.apiUrl')}/auth/realms/cooperado/protocol/openid-connect/token`,
+            url: `https://auth.sicoob.com.br/auth/realms/cooperado/protocol/openid-connect/token`,
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
@@ -41,13 +44,18 @@ export class PaymentService {
             }
         };
 
-        const response = await axios(config)
-
-        const token = response.data
-        return {
-            client_id,
-            Authorization: `Bearer  ${token}`
+        try {
+            const response = await axios(config)
+            const token = response.data
+            return {
+                client_id,
+                Authorization: `Bearer  ${token}`
+            }
+        } catch (e) {
+            console.log(e)
         }
+
+
     }
 
 
