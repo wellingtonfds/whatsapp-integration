@@ -26,6 +26,13 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
             }
         })
     }
+    public async findContactByPhoneNumber(phoneNumber: string) {
+        return this.contact.findFirst({
+            where: {
+                phoneNumber: { equals: phoneNumber },
+            }
+        })
+    }
     public async findByCPF(cpf: string): Promise<Contact> {
         return this.contact.findFirst({
             where: {

@@ -53,8 +53,8 @@ model Bill {
 model Contact {
   id          BigInt    @id @default(autoincrement())
   phoneNumber String
-  CPF         String
-  name        String?
+  CPF         String?
+  name        String
   crmId       Int?
   email       String?
   notification  Notification[]

@@ -10,15 +10,24 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
     }
 
     public async create(bill: Prisma.BillCreateInput): Promise<Bill> {
+
+        const hasBill = await this.getBillByPaymentList(bill.paymentIdList)
+        if (hasBill) {
+            return hasBill
+        }
         const createdBill = await this.bill.create({
             data: bill
         })
         return createdBill
     }
 
-    public async getBillWithoutMessages() {
-        return this.bill.findMany({
-
+    public async getBillByPaymentList(paymentList: string): Promise<Bill> {
+        return this.bill.findFirst({
+            where: {
+                paymentIdList: {
+                    equals: paymentList
+                }
+            }
         })
     }
 

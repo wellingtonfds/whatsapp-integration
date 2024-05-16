@@ -1,6 +1,5 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Contact } from '@prisma/client';
-import { HttpStatusCode } from 'axios';
 import { ContactRepository } from './contact.repository';
 import { CreateContactDto } from './dto/create-contract.dto';
 
@@ -12,15 +11,18 @@ export class ContactService {
     public async findByCPF(cpf: string): Promise<Contact> {
         return this.contactRepository.findByCPF(cpf)
     }
+    public async findContactByPhoneNumber(phoneNumber: string): Promise<Contact> {
+        return this.contactRepository.findContactByPhoneNumber(phoneNumber)
+    }
     public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string): Promise<Contact> {
         return this.contactRepository.findContactByUniqueKey(cpf, email, phoneNumber)
     }
 
     public async create(data: CreateContactDto): Promise<Contact> {
-        const { CPF, email, phoneNumber } = data
-        const exists = await this.findContactByUniqueKey(CPF, email, phoneNumber)
+        const { phoneNumber } = data
+        const exists = await this.findContactByPhoneNumber(phoneNumber)
         if (exists) {
-            throw new HttpException('contact has been exist, please try again', HttpStatusCode.BadRequest)
+            return exists
         }
         return await this.contactRepository.create(data)
     }

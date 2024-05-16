@@ -8,10 +8,11 @@ export class CreateContactDto {
     @IsString()
     phoneNumber: string
 
-    @ApiProperty()
-    @IsNotEmpty()
+    @ApiProperty({
+        required: false
+    })
     @IsString()
-    CPF: string
+    CPF?: string
 
 
     @ApiProperty({
@@ -24,6 +25,6 @@ export class CreateContactDto {
         required: false
     })
     @IsString()
-    name?: string
+    name: string
 
 }

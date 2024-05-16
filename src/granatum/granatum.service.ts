@@ -29,12 +29,15 @@ export class GranatumService {
             return clientes.map((cliente: Cliente) => {
                 const lancamentosCliente = lancamentos.filter((lanc: Lancamento) => lanc.pessoa_id === cliente.id);
                 const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente, tipos);
-                // Gravar os sócios aqui
-                // Esse methodo só deverá ser chamado uma vez, ou se não precisar adicionar um controle para não dubplicar
-                // this.billService.create({
-                //     bill: {},
-                //     notification: {}
-                // })
+                if (socioObj.valorTotal > 0) {
+                    this.billService.create({
+                        phoneNumber: socioObj.telefoneInput,
+                        clienteName: socioObj.nome,
+                        value: socioObj.valorTotal,
+                        paymentIdList: socioObj.idsLancamentos.join(','),
+                        pixTaxId: ''
+                    })
+                }
                 return socioObj;
             });
         } catch (error: any) {
