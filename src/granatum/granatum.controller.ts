@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiSecurity } from '@nestjs/swagger';
-import { ApiKeyGuard } from 'src/auth/api-guard';
+import { ApiKeyGuard } from '../auth/api-guard';
 import { GranatumService } from './granatum.service';
 
 @Controller('granatum')

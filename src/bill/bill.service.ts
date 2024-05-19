@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ContactService } from 'src/contact/contact.service';
+import { ContactService } from '../contact/contact.service';
 import { BillRepository } from './bill.repository';
 import { CreateBill } from './types/create-bill';
 

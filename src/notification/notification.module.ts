@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ContactModule } from 'src/contact/contact.module';
+import { ContactModule } from '../contact/contact.module';
 import { NotificationController } from './notification.controller';
 import { NotificationRepository } from './notification.repository';
 import { NotificationService } from './notification.service';

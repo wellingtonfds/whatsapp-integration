@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ContactModule } from '../contact/contact.module';
 import { NotificationController } from './notification.controller';
 import { NotificationRepository } from './notification.repository';
 import { NotificationService } from './notification.service';
@@ -11,7 +12,7 @@ describe('NotificationController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NotificationController],
       providers: [NotificationService, NotificationRepository],
-      imports: [WhatsAppModule]
+      imports: [WhatsAppModule, ContactModule]
     }).compile();
 
     controller = module.get<NotificationController>(NotificationController);

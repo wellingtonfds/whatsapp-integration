@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { HttpStatusCode } from 'axios';
-import addNinthDigitOnPhoneNumber from 'src/helper/add-ninth-digit-on-phone-number';
+import addNinthDigitOnPhoneNumber from '../../helper/add-ninth-digit-on-phone-number';
 import { WhatsAppMessageIncomingBody } from './types/whats-app-message-incoming';
 import { WhatsAppSendMessage } from './types/whats-app-send-message';
 

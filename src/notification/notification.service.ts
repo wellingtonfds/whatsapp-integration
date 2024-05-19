@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Notification } from '@prisma/client';
 import { HttpStatusCode } from 'axios';
-import { ContactService } from 'src/contact/contact.service';
+import { ContactService } from '../contact/contact.service';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationRepository } from './notification.repository';
 import { NotificationWithContact } from './types/notification-with-contact';
