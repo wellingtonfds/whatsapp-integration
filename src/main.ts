@@ -1,10 +1,19 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import fs from 'fs';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+
+
+  const httpsOptions = {
+    key: fs.readFileSync('./src/cert/key.pem', 'utf8'),
+    cert: fs.readFileSync('./src/cert/cert.pem', 'utf8'),
+  };
+  const app = await NestFactory.create(AppModule, {
+
+  });
   app.useGlobalPipes(new ValidationPipe())
   const config = new DocumentBuilder()
     .setTitle('Tesouraria Digital')

@@ -22,11 +22,12 @@ export class PaymentService {
             }
         }
         const agent = new https.Agent({
-
             keepAlive: true,
-            rejectUnauthorized: false,
-            pfx: this.config.get('sicoob.cert'),
-            passphrase: this.config.get('sicoob.key'),
+            requestCert: true,
+            rejectUnauthorized: true,
+            cert: this.config.get('sicoob.cert'),
+            key: this.config.get('sicoob.key'),
+
         })
         const config = {
             agent,
