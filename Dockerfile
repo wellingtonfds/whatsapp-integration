@@ -15,8 +15,6 @@ RUN npm install -g pnpm
 
 # Copy package.json and pnpm-lock.yaml
 COPY ./src/ ./src/
-COPY ./private_key.pem ./
-COPY ./keyfile.key ./
 COPY ./package.json ./
 COPY ./tsconfig.json ./
 COPY ./tsconfig.build.json ./
@@ -24,6 +22,7 @@ COPY ./nest-cli.json ./
 COPY ./.prettierrc ./
 COPY ./.eslintrc.js ./
 COPY ./prisma ./
+COPY ./certs ./
 
 # Install dependencies
 RUN pnpm install
