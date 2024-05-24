@@ -33,9 +33,11 @@ export class GranatumService {
                     this.billService.create({
                         phoneNumber: socioObj.telefoneInput,
                         clienteName: socioObj.nome,
+                        clientDocument: socioObj.cpf,
                         value: socioObj.valorTotal,
                         paymentIdList: socioObj.idsLancamentos.join(','),
-                        pixTaxId: ''
+                        pixTaxId: '',
+
                     })
                 }
                 return socioObj;

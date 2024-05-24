@@ -17,7 +17,8 @@ class SocioBuilder {
             valorTotal: 0,
             mensagem: '',
             valor: '',
-            idsLancamentos: []
+            idsLancamentos: [],
+            cpf: ''
         }
 
         this.valoresDetalhados = new Map()
@@ -29,6 +30,7 @@ class SocioBuilder {
         this.socio.telefoneInput = this.obterTelefoneDeCliente(cliente)
         this.socio.telefone = this.aplicarMascaraTelefone(this.socio.telefoneInput)
         this.processarLancamentos(lancamentosCliente)
+        this.socio.cpf = cliente.documento
         this.gerarMensagem(tipos)
         return this.socio
     }
@@ -63,7 +65,7 @@ class SocioBuilder {
                     } else {
                         console.error(`Valor não é numérico: ${valor}`)
                     }
-                 
+
                 } else {
                     // Lidar com casos onde 'valor' não é um número ou não pode ser convertido
                     console.error(`Valor não é um número: ${valor}`)

@@ -48,8 +48,23 @@ export class NotificationRepository extends PrismaClient implements OnModuleInit
             }
         })
         return response
+    }
 
-
+    async getAllMessagesNotSentByCpf(cpf: string): Promise<NotificationWithContact[]> {
+        const response = await this.notification.findMany({
+            where: {
+                contact: {
+                    CPF: cpf
+                },
+                AND: {
+                    sent: null
+                }
+            },
+            include: {
+                contact: true
+            }
+        })
+        return response
     }
 
 }

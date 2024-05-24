@@ -9,5 +9,6 @@ import { WhatsAppModule } from './whats-app/whats-app.module';
     imports: [WhatsAppModule, ContactModule],
     controllers: [NotificationController],
     providers: [NotificationService, NotificationRepository],
+    exports: [NotificationService]
 })
 export class NotificationModule { }

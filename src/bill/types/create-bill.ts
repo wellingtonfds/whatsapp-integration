@@ -4,4 +4,5 @@ export interface CreateBill {
     pixTaxId: string
     phoneNumber: string
     clienteName: string
+    clientDocument: string
 }

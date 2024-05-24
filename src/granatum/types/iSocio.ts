@@ -8,4 +8,5 @@ export interface Socio {
     mensagem: string;
     valor: string;
     idsLancamentos: number[];
+    cpf: string
 }

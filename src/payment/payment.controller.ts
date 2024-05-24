@@ -13,4 +13,13 @@ export class PaymentController {
 
     }
 
+
+    @Get('register/notifications')
+    public async registerNotifications() {
+        this.paymentService.registerNotifications()
+    }
+
+
+
+
 }

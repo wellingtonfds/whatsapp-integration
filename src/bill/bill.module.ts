@@ -4,6 +4,6 @@ import { BillService } from './bill.service';
 
 @Module({
   providers: [BillService, BillRepository],
-  exports: [BillService, BillRepository]
+  exports: [BillService]
 })
 export class BillModule { }

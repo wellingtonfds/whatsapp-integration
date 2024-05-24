@@ -19,8 +19,8 @@ export class ContactService {
     }
 
     public async create(data: CreateContactDto): Promise<Contact> {
-        const { phoneNumber } = data
-        const exists = await this.findContactByPhoneNumber(phoneNumber)
+        const { phoneNumber, CPF, email } = data
+        const exists = await this.findContactByUniqueKey(CPF, email, phoneNumber)
         if (exists) {
             return exists
         }

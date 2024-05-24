@@ -3,4 +3,5 @@ export interface Cliente {
     nome: string;
     telefone: string;
     observacao: string;
+    documento: string
 }

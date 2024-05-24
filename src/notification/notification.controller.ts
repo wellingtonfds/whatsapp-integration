@@ -28,4 +28,11 @@ export class NotificationController {
         this.notificationService.processingMessages()
     }
 
+
+    @Get('contact')
+    public async registerNotifications() {
+        this.notificationService.sendNotificationsByContact('04622695669')
+    }
+
+
 }

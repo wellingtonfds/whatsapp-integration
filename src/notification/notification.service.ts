@@ -17,6 +17,7 @@ export class NotificationService {
     ) { }
 
 
+
     public async sendNotification({ contact, ...msg }: NotificationWithContact) {
         const message = msg.message as { text?: string, template?: string, parameters?: string[] }
         await this.whatsAppService.sendMessage({
@@ -47,7 +48,7 @@ export class NotificationService {
 
         const response = await this.notificationRepository.create({
             message,
-            type: data.template === 'TEMPLATE' ? 'TEMPLATE' : 'TEXT'
+            type: data.template === 'TEXT' ? 'TEXT' : 'TEMPLATE'
         }, contact)
         return response
     }
@@ -65,6 +66,12 @@ export class NotificationService {
             this.sendNotification(msg)
         })
         console.log(msgs)
+    }
+
+    async sendNotificationsByContact(cpf: string) {
+        const notifications = await this.notificationRepository.getAllMessagesNotSentByCpf(cpf)
+        const [first] = notifications
+        await this.sendNotification(first)
     }
 
 }

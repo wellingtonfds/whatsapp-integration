@@ -8,11 +8,12 @@ import { CreateBill } from './types/create-bill';
 export class BillService {
     constructor(private billRepository: BillRepository, private contactService: ContactService) { }
 
-    public async create({ phoneNumber, clienteName: name, ...bill }: CreateBill) {
+    public async create({ phoneNumber, clienteName: name, clientDocument: CPF, ...bill }: CreateBill) {
 
         const contact = await this.contactService.create({
             phoneNumber,
-            name
+            name,
+            CPF
         })
         if (contact) {
             this.billRepository.create({
