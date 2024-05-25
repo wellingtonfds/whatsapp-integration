@@ -52,6 +52,7 @@ export class WhatsAppService {
         }
 
         if (message.template) {
+
             return this.parseNotificationTemplate(message)
         }
         return this.parseNotificationTextOnly(message)

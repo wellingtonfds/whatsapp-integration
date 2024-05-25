@@ -31,7 +31,7 @@ export class NotificationController {
 
     @Get('contact')
     public async registerNotifications() {
-        this.notificationService.sendNotificationsByContact('04622695669')
+        return await this.notificationService.sendNotificationsByContact('04622695669')
     }
 
 
