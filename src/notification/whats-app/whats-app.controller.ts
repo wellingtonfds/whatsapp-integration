@@ -39,8 +39,7 @@ export class WhatsAppController {
             return
         }
 
-        res.status(400)
-        return 'ok'
+        res.status(400).send()
     }
 
 }
