@@ -27,7 +27,7 @@ export class WhatsAppController {
 
     @Get()
     public async registerWebhook(@Req() req: Request, @Res() res: Response) {
-
+        console.log('testando', req.query)
         const mode = req.query["hub.mode"]
         const token = req.query["hub.verify_token"]
         const WEBHOOK_VERIFY_TOKEN = 'ValidacaoToken'
