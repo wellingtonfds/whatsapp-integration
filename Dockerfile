@@ -23,7 +23,9 @@ COPY ./.prettierrc ./
 COPY ./.eslintrc.js ./
 COPY ./prisma ./
 COPY ./certs ./
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Install dependencies
 RUN pnpm install
 
@@ -35,4 +37,5 @@ RUN pnpm install
 RUN pnpm prisma generate
 RUN pnpm build
 # Start the application
-CMD ["pnpm", "start:prod"]
+# CMD ["pnpm", "start:prod"]
+ENTRYPOINT ["bash","docker-entrypoint.sh"]
