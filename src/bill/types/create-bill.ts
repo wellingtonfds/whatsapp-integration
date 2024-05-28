@@ -5,4 +5,5 @@ export interface CreateBill {
     phoneNumber: string
     clienteName: string
     clientDocument: string
+    clientCrmId: number
 }

@@ -31,6 +31,7 @@ export class GranatumService {
                 const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente, tipos);
                 if (socioObj.valorTotal > 0) {
                     this.billService.create({
+                        clientCrmId: socioObj.id,
                         phoneNumber: socioObj.telefoneInput,
                         clienteName: socioObj.nome,
                         clientDocument: socioObj.cpf,

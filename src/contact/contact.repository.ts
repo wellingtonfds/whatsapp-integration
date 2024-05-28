@@ -15,13 +15,14 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
             console.log(error)
         }
     }
-    public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string) {
+    public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string, crmId: number) {
         return this.contact.findFirst({
             where: {
                 OR: [
                     { CPF: { equals: cpf } },
                     { email: { equals: email } },
                     { phoneNumber: { equals: phoneNumber } },
+                    { crmId: { equals: crmId } },
                 ]
             }
         })
@@ -40,6 +41,16 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
                     equals: cpf
                 }
             }
+        })
+    }
+
+    public async update(contactId: bigint, data: Prisma.ContactUpdateInput) {
+        return this.contact.update({
+            where: {
+                id: contactId
+            },
+            data
+
         })
     }
 }

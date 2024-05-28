@@ -9,12 +9,13 @@ import { ResponseListBill } from './types/response-list-bill';
 export class BillService {
     constructor(private billRepository: BillRepository, private contactService: ContactService) { }
 
-    public async create({ phoneNumber, clienteName: name, clientDocument: CPF, ...bill }: CreateBill) {
+    public async create({ phoneNumber, clienteName: name, clientDocument: CPF, clientCrmId: crmId, ...bill }: CreateBill) {
 
-        const contact = await this.contactService.create({
+        const contact = await this.contactService.createOrUpdate({
             phoneNumber,
             name,
-            CPF
+            CPF,
+            crmId
         })
         if (contact) {
             this.billRepository.create({

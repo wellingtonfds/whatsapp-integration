@@ -14,15 +14,22 @@ export class ContactService {
     public async findContactByPhoneNumber(phoneNumber: string): Promise<Contact> {
         return this.contactRepository.findContactByPhoneNumber(phoneNumber)
     }
-    public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string): Promise<Contact> {
-        return this.contactRepository.findContactByUniqueKey(cpf, email, phoneNumber)
+    public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string, crmId: number): Promise<Contact> {
+        return this.contactRepository.findContactByUniqueKey(cpf, email, phoneNumber, crmId)
     }
 
-    public async create(data: CreateContactDto): Promise<Contact> {
-        const { phoneNumber, CPF, email } = data
-        const exists = await this.findContactByUniqueKey(CPF, email, phoneNumber)
+    public async createOrUpdate(data: CreateContactDto): Promise<Contact> {
+        const { phoneNumber, CPF, email, crmId, name } = data
+        const exists = await this.findContactByUniqueKey(CPF, email, phoneNumber, crmId)
         if (exists) {
-            return exists
+            const response = await this.contactRepository.update(exists.id, {
+                ...exists,
+                phoneNumber,
+                email,
+                crmId,
+                name
+            })
+            return response
         }
         return await this.contactRepository.create(data)
     }

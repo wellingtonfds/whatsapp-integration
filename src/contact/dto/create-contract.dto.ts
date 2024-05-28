@@ -1,18 +1,22 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsNotEmpty, IsString } from "class-validator"
+import { IsNotEmpty, IsNumber, IsString } from "class-validator"
 
 export class CreateContactDto {
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsNumber()
+    crmId: number
 
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
     phoneNumber: string
 
-    @ApiProperty({
-        required: false
-    })
+    @ApiProperty()
+    @IsNotEmpty()
     @IsString()
-    CPF?: string
+    CPF: string
 
 
     @ApiProperty({
@@ -21,10 +25,11 @@ export class CreateContactDto {
     @IsString()
     email?: string
 
-    @ApiProperty({
-        required: false
-    })
+    @ApiProperty()
+    @IsNotEmpty()
     @IsString()
     name: string
+
+
 
 }
