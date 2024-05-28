@@ -89,19 +89,28 @@ export class PaymentService {
 
     public async registerNotifications() {
         const bills = await this.billService.getBillWithoutPixKey()
+        const response = []
         for (const bill of bills) {
             const { contact, ...billData } = bill
-            await this.notificationService.create({
+            const notification = await this.notificationService.create({
                 contactCpf: contact.CPF,
                 template: 'enviar_chamada_boleto',
                 parameters: [
                     contact.name,
+                    'Maio',
                     billData.value.toString(),
-                    'Maio'
+                    'código pix de teste'
                 ]
             })
 
+            response.push({
+                ...notification,
+                id: notification.id.toString(),
+                contactId: notification.contactId.toString()
+            })
+
         }
+        return response
     }
 
 }

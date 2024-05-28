@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiBody } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { ApiBody, ApiQuery } from '@nestjs/swagger';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationService } from './notification.service';
 import { WhatsAppService } from './whats-app/whats-app.service';
@@ -29,9 +29,15 @@ export class NotificationController {
     }
 
 
-    @Get('contact')
-    public async registerNotifications() {
-        return await this.notificationService.sendNotificationsByContact('04622695669')
+    @Get('by/contact')
+    @ApiQuery({
+        name: 'contactId',
+        description: "Send a notification by id from contact, example : 1,2 e etc"
+    })
+
+    public async registerNotifications(@Query('contactId') contactId: string) {
+
+        return await this.notificationService.sendNotificationsByContact(BigInt(contactId))
     }
 
 

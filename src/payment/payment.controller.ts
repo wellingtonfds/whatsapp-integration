@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { PaymentService } from './payment.service';
 
 @Controller('payment')
@@ -15,8 +16,11 @@ export class PaymentController {
 
 
     @Get('register/notifications')
+    @ApiOperation({
+        description: 'Create a notifications by bills. Run this command after contacts and bills there here'
+    })
     public async registerNotifications() {
-        this.paymentService.registerNotifications()
+        return await this.paymentService.registerNotifications()
     }
 
 

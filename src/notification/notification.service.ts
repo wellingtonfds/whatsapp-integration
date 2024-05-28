@@ -69,8 +69,8 @@ export class NotificationService {
         console.log(msgs)
     }
 
-    async sendNotificationsByContact(cpf: string) {
-        const notifications = await this.notificationRepository.getAllMessagesNotSentByCpf(cpf)
+    async sendNotificationsByContact(contactId: bigint) {
+        const notifications = await this.notificationRepository.getAllMessagesNotSentById(contactId)
         const [first] = notifications
         await this.sendNotification(first)
     }

@@ -67,4 +67,21 @@ export class NotificationRepository extends PrismaClient implements OnModuleInit
         return response
     }
 
+    async getAllMessagesNotSentById(id: bigint): Promise<NotificationWithContact[]> {
+        const response = await this.notification.findMany({
+            where: {
+                contact: {
+                    id
+                },
+                AND: {
+                    sent: null
+                }
+            },
+            include: {
+                contact: true
+            }
+        })
+        return response
+    }
+
 }
