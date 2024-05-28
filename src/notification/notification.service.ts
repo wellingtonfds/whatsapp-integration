@@ -20,13 +20,14 @@ export class NotificationService {
 
     public async sendNotification({ contact, ...msg }: NotificationWithContact) {
         const message = msg.message as { text?: string, template?: string, parameters?: string[] }
-        await this.whatsAppService.sendMessage({
+        const payload = {
             ...msg,
             text: message?.text,
             template: message?.template,
             parameters: message?.parameters,
             to: contact.phoneNumber
-        })
+        }
+        await this.whatsAppService.sendMessage(payload)
         await this.update({
             ...msg,
             sent: new Date()
@@ -44,7 +45,7 @@ export class NotificationService {
         }
         const message = data.template ? {
             template: data.template,
-            params: data.parameters
+            parameters: data.parameters
         } : { text: data.text }
 
         const response = await this.notificationRepository.create({
