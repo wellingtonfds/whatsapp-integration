@@ -46,4 +46,16 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
         })
     }
 
+    public async getBillWithContactByMonthAndYear(date: Date) {
+        return this.bill.findMany({
+            where: {
+                createdAt: {
+                    gte: date
+                }
+            },
+            include: {
+                contact: true
+            }
+        })
+    }
 }

@@ -43,6 +43,7 @@ model Bill {
   pixCreatedAt  DateTime?
   paymentValue  Decimal?
   pixExpiration DateTime?
+  crmUpdate     DateTime?
   contact   Contact @relation(fields: [contactId], references: [id])
   contactId BigInt
   createdAt   DateTime           @default(now())
