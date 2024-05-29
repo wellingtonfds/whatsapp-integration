@@ -28,6 +28,7 @@ describe('GranatumController', () => {
     const result = [
       {
         "enviar": false,
+        "cpf": "09454583613",
         "id": 2700428,
         "nome": "ATESTE",
         "telefone": "+55 (31) 99999-9999",

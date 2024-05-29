@@ -1,6 +1,6 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiSecurity } from '@nestjs/swagger';
-import { ApiKeyGuard } from 'src/auth/api-guard';
+import { ApiKeyGuard } from '../auth/api-guard';
 import { BillService } from './bill.service';
 import { ListBillDto } from './types/list-bill.dto';
 import { ResponseListBill } from './types/response-list-bill';

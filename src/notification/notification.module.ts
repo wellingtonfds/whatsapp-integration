@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { BillModule } from 'src/bill/bill.module';
+import { BillModule } from '../bill/bill.module';
 import { ContactModule } from '../contact/contact.module';
 import { NotificationController } from './notification.controller';
 import { NotificationRepository } from './notification.repository';

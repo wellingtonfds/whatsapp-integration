@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery, ApiSecurity } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { ApiKeyGuard } from 'src/auth/api-guard';
+import { ApiKeyGuard } from '../auth/api-guard';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationService } from './notification.service';
 

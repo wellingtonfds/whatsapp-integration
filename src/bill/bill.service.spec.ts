@@ -27,6 +27,9 @@ describe('BillService', () => {
       pixTaxId: '55319999999999',
       phoneNumber: '31993012467',
       clienteName: 'wellington Fernandes',
+      clientCrmId: 1,
+      clientDocument: '04828223123',
+      description: 'Msg de descrição'
 
 
     }

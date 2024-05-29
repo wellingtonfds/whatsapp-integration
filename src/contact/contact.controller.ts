@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiSecurity } from '@nestjs/swagger';
-import { ApiKeyGuard } from 'src/auth/api-guard';
+import { ApiKeyGuard } from '../auth/api-guard';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/create-contract.dto';
 
