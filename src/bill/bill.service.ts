@@ -51,8 +51,10 @@ export class BillService {
             crmUpdate: bill.crmUpdate?.toLocaleString() ?? '',
         }))
 
+    }
 
-
+    public async getBillWithContactByPhoneNumber(phoneNumber: string) {
+        return this.billRepository.getBillWithContactByPhoneNumber(phoneNumber)
     }
 
 }

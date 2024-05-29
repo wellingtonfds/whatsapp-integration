@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { Request, Response } from 'express';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationService } from './notification.service';
 
@@ -45,6 +46,47 @@ export class NotificationController {
     })
     public async registerNotifications() {
         return await this.notificationService.registerNotifications()
+    }
+
+    @Get('whats-app')
+    @ApiOperation({
+        description: 'Register webhook whatsApp'
+    })
+    public async registerWebhook(@Req() req: Request, @Res() res: Response) {
+        console.log('testando', req.query)
+        const mode = req.query["hub.mode"]
+        const token = req.query["hub.verify_token"]
+        const WEBHOOK_VERIFY_TOKEN = 'ValidacaoToken'
+        if (mode === "subscribe" && token === WEBHOOK_VERIFY_TOKEN) {
+            const challenge = req.query["hub.challenge"];
+            // respond with 200 OK and challenge token from the request
+            res.status(200).send(challenge);
+            console.log("Webhook verified successfully!");
+            return
+        }
+
+        res.status(400).send()
+    }
+
+    @Post('whats-app')
+    @ApiOperation({
+        description: 'Webhook whatsApp'
+    })
+    public async webhook(@Req() req: Request, @Res() res: Response) {
+        console.log('query', req.query)
+        const mode = req.query["hub.mode"]
+        const token = req.query["hub.verify_token"]
+        const WEBHOOK_VERIFY_TOKEN = 'ValidacaoToken'
+        if (mode === "subscribe" && token === WEBHOOK_VERIFY_TOKEN) {
+            const challenge = req.query["hub.challenge"];
+            // respond with 200 OK and challenge token from the request
+            res.status(200).send(challenge);
+            console.log("Webhook verified successfully!");
+            return
+        }
+
+        await this.notificationService.webhookWhatAppHandleMessages(req.body)
+        res.send('ok')
     }
 
 

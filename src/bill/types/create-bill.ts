@@ -6,4 +6,5 @@ export interface CreateBill {
     clienteName: string
     clientDocument: string
     clientCrmId: number
+    description?: string
 }

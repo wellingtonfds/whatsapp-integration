@@ -104,4 +104,8 @@ export class NotificationService {
         return response
     }
 
+    public async webhookWhatAppHandleMessages(body) {
+        this.whatsAppService.webhookHandleMessages(body)
+    }
+
 }

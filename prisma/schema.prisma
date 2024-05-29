@@ -37,6 +37,7 @@ model Bill {
   value       Decimal
   paymentIdList String
   paymentDate DateTime?
+  description   String?
   pixTaxId      String
   pixKey        String?
   pixQrCode     String?

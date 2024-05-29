@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { HttpStatusCode } from 'axios';
+import { BillService } from 'src/bill/bill.service';
 import addNinthDigitOnPhoneNumber from '../../helper/add-ninth-digit-on-phone-number';
 import { WhatsAppMessageIncomingBody } from './types/whats-app-message-incoming';
 import { WhatsAppSendMessage } from './types/whats-app-send-message';
@@ -8,7 +9,7 @@ import { WhatsAppSendMessage } from './types/whats-app-send-message';
 @Injectable()
 export class WhatsAppService {
 
-    constructor(private config: ConfigService) { }
+    constructor(private config: ConfigService, private billService: BillService) { }
 
     private parseNotificationTemplate(message: WhatsAppSendMessage) {
         const parameters = message.parameters.map(para => ({
@@ -78,8 +79,16 @@ export class WhatsAppService {
 
     }
 
-    public answerContact(phoneNumber: string, message: string) {
-        const sentDetails = () => {
+    public async answerContact(phoneNumber: string, message: string) {
+        const sentDetails = async () => {
+            const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
+            const bills = await this.billService.getBillWithContactByPhoneNumber(currentPhoneNumber)
+            for (const bill of bills) {
+                await this.sendMessage({
+                    to: currentPhoneNumber,
+                    text: bill.description
+                })
+            }
             // 1 - Recuperar cobranças 
             // 2 - enviar msgs
 
@@ -100,16 +109,10 @@ export class WhatsAppService {
         }
 
         try {
-            console.log(message.replaceAll(' ', ''))
-            commands[message.replaceAll(' ', '')]()
+            await commands[message.replaceAll(' ', '')]()
         } catch {
             defaultMessage()
         }
-
-
-
-
-
 
     }
 
@@ -120,31 +123,28 @@ export class WhatsAppService {
             return
         }
         const actions: Promise<void>[] = []
-        entry.forEach(item => {
-            item.changes.forEach(change => {
-                change.value.messages.forEach(msg => {
-                    const { from, text: { body } } = msg
-                    console.log({
-                        from,
-                        body
+
+        try {
+            entry?.forEach(item => {
+                item.changes.forEach(change => {
+                    change.value?.messages.forEach(msg => {
+                        const { from, text: { body } } = msg
+                        console.log({
+                            from,
+                            body
+                        })
+                        this.answerContact(from, body)
+
+
                     })
-                    this.answerContact(from, body)
-                    // const sendMsg = this.sendMessage({
-                    //     to: msg.from,
-                    //     text: 'Servidor respondendo vc'
-                    // })
-                    // actions.push(sendMsg)
-
-
                 })
             })
-        })
 
-        Promise.all(actions)
-        // messages.map(message => {
-        //     console.log('mess', message)
+            Promise.all(actions)
+        } catch (e) {
+            console.log('return of services not normalized')
+        }
 
-        // })
     }
 
 }

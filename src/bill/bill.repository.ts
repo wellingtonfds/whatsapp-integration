@@ -58,4 +58,18 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
             }
         })
     }
+
+
+    public async getBillWithContactByPhoneNumber(phoneNumber: string) {
+        return this.bill.findMany({
+            where: {
+                contact: {
+                    phoneNumber
+                }
+            },
+            include: {
+                contact: true
+            }
+        })
+    }
 }
