@@ -79,20 +79,29 @@ export class WhatsAppService {
     }
 
     public answerContact(phoneNumber: string, message: string) {
-        const sentBills = () => {
+        const sentDetails = () => {
+            // 1 - Recuperar cobranças 
+            // 2 - enviar msgs
+
+            // console.log('sendMSG')
+            // const sendMsg = this.sendMessage({
+            //     to: msg.from,
+            //     text: 'Servidor respondendo vc'
+            // })
             // find bill not paid yet
             // send notification
         }
         const defaultMessage = () => {
-
+            console.log('default command')
             // send template with menu
         }
         const commands = {
-            1: sentBills
+            'VerDetalhes': sentDetails
         }
 
         try {
-            commands[message]()
+            console.log(message.replaceAll(' ', ''))
+            commands[message.replaceAll(' ', '')]()
         } catch {
             defaultMessage()
         }
@@ -106,11 +115,20 @@ export class WhatsAppService {
 
 
     public async webhookHandleMessages(whatsAppMessageIncomingBody: WhatsAppMessageIncomingBody) {
-        const { entry } = whatsAppMessageIncomingBody
+        const { entry, object } = whatsAppMessageIncomingBody
+        if (object !== 'whatsapp_business_account') {
+            return
+        }
         const actions: Promise<void>[] = []
         entry.forEach(item => {
             item.changes.forEach(change => {
                 change.value.messages.forEach(msg => {
+                    const { from, text: { body } } = msg
+                    console.log({
+                        from,
+                        body
+                    })
+                    this.answerContact(from, body)
                     // const sendMsg = this.sendMessage({
                     //     to: msg.from,
                     //     text: 'Servidor respondendo vc'
