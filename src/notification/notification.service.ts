@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Notification } from '@prisma/client';
 import { HttpStatusCode } from 'axios';
+import { BillService } from 'src/bill/bill.service';
 import { ContactService } from '../contact/contact.service';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationRepository } from './notification.repository';
@@ -13,7 +14,8 @@ export class NotificationService {
     constructor(
         private notificationRepository: NotificationRepository,
         private whatsAppService: WhatsAppService,
-        private contactService: ContactService
+        private contactService: ContactService,
+        private billService: BillService
     ) { }
 
 
@@ -74,6 +76,32 @@ export class NotificationService {
         const notifications = await this.notificationRepository.getAllMessagesNotSentById(contactId)
         const [first] = notifications
         await this.sendNotification(first)
+    }
+
+    public async registerNotifications() {
+        const bills = await this.billService.getBillWithoutPixKey()
+        const response = []
+        for (const bill of bills) {
+            const { contact, ...billData } = bill
+            const notification = await this.create({
+                contactCpf: contact.CPF,
+                template: 'enviar_chamada_boleto',
+                parameters: [
+                    contact.name,
+                    'Maio',
+                    billData.value.toString(),
+                    'código pix de teste'
+                ]
+            })
+
+            response.push({
+                ...notification,
+                id: notification.id.toString(),
+                contactId: notification.contactId.toString()
+            })
+
+        }
+        return response
     }
 
 }

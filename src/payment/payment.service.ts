@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import https from 'https';
 import { BillService } from '../bill/bill.service';
-import { NotificationService } from '../notification/notification.service';
 import { PaymentList } from './types/register-many-payment-pix';
 import { Payment } from './types/register-payment-pix';
 
@@ -14,8 +13,8 @@ export class PaymentService {
 
     public constructor(
         private config: ConfigService,
-        private billService: BillService,
-        private notificationService: NotificationService) { }
+        private billService: BillService
+    ) { }
 
     public async getToken() {
         const client_id = this.config.get('sicoob.clientId')
@@ -85,32 +84,6 @@ export class PaymentService {
             cobsv: payments
         }
         const response = await this.sendRequest(this.apiUrl, 'put', payload)
-    }
-
-    public async registerNotifications() {
-        const bills = await this.billService.getBillWithoutPixKey()
-        const response = []
-        for (const bill of bills) {
-            const { contact, ...billData } = bill
-            const notification = await this.notificationService.create({
-                contactCpf: contact.CPF,
-                template: 'enviar_chamada_boleto',
-                parameters: [
-                    contact.name,
-                    'Maio',
-                    billData.value.toString(),
-                    'código pix de teste'
-                ]
-            })
-
-            response.push({
-                ...notification,
-                id: notification.id.toString(),
-                contactId: notification.contactId.toString()
-            })
-
-        }
-        return response
     }
 
 }
