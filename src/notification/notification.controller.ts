@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiQuery, ApiSecurity } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { ApiKeyGuard } from 'src/auth/api-guard';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationService } from './notification.service';
 
@@ -10,6 +11,8 @@ export class NotificationController {
     constructor(private notificationService: NotificationService) { }
 
 
+    @UseGuards(ApiKeyGuard)
+    @ApiSecurity('Api-Key')
     @Post('create')
     @ApiBody({ type: NotificationDto })
     public async createNotification(@Body() data: NotificationDto) {
@@ -19,6 +22,8 @@ export class NotificationController {
     }
 
 
+    @UseGuards(ApiKeyGuard)
+    @ApiSecurity('Api-Key')
     @Get('processing')
     /**
      * processingMessages
@@ -28,6 +33,8 @@ export class NotificationController {
     }
 
 
+    @UseGuards(ApiKeyGuard)
+    @ApiSecurity('Api-Key')
     @Get('by/contact')
     @ApiQuery({
         name: 'contactId',
@@ -40,6 +47,8 @@ export class NotificationController {
 
 
 
+    @UseGuards(ApiKeyGuard)
+    @ApiSecurity('Api-Key')
     @Get('register/notifications')
     @ApiOperation({
         description: 'Create a notifications by bills. Run this command after contacts and bills there here'
@@ -67,6 +76,7 @@ export class NotificationController {
 
         res.status(400).send()
     }
+
 
     @Post('whats-app')
     @ApiOperation({

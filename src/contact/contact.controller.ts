@@ -1,4 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { ApiSecurity } from '@nestjs/swagger';
+import { ApiKeyGuard } from 'src/auth/api-guard';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/create-contract.dto';
 
@@ -6,6 +8,8 @@ import { CreateContactDto } from './dto/create-contract.dto';
 export class ContactController {
     constructor(private contactService: ContactService) { }
 
+    @UseGuards(ApiKeyGuard)
+    @ApiSecurity('Api-Key')
     @Post()
     public async create(@Body() requestData: CreateContactDto) {
 
