@@ -26,41 +26,36 @@ export class PaymentService {
             }
         }
         const agent = new https.Agent({
-            keepAlive: true,
-            requestCert: true,
-            rejectUnauthorized: false,
             cert: this.config.get('sicoob.cert'),
             key: this.config.get('sicoob.key'),
-            passphrase: '15082017'
-
+            passphrase: this.config.get('sicoob.passphrase'),
 
         })
         const config = {
-            agent,
             method: 'post',
-
-            maxBodyLength: Infinity,
             url: `https://auth.sicoob.com.br/auth/realms/cooperado/protocol/openid-connect/token`,
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'application/json'
             },
             data: {
                 grant_type: 'client_credentials',
-                client_id,
+                client_id: this.config.get('sicoob.clientId'),
                 scope: 'cob.read cob.write cobv.write cobv.read lotecobv.write lotecobv.read pix.write pix.read webhook.read webhook.write payloadlocation.write payloadlocation.read'
-            }
+            },
+            httpsAgent: agent
         };
 
         try {
             const response = await axios(config)
-            const token = response.data
+            const { access_token } = response.data
+
             return {
                 client_id,
-                Authorization: `Bearer  ${token}`
+                Authorization: `Bearer  ${access_token}`
             }
         } catch (e) {
-            console.log(e)
+            console.log('SICOOB_ERROR', e)
+            throw e
         }
 
 

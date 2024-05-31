@@ -23,6 +23,8 @@ COPY ./.prettierrc ./
 COPY ./.eslintrc.js ./
 COPY ./prisma ./
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY ./private_key.pem ./
+COPY ./public_key.pem ./
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Install dependencies

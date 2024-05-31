@@ -1,14 +1,15 @@
 
 
+import fs from 'fs'
+
 export default () => ({
     sicoob: {
         clientId: process.env.SICOOB_CLIENT_ID,
         sandBox: process.env.SICOOB_SANDBOX,
         apiUrl: process.env.SICOOB_API_URL,
-        cert: '',
-        // cert: fs.readFileSync('./certificado.crt'),
-        key: ''
-        // key: fs.readFileSync('./public.key')
+        cert: fs.readFileSync('./public_key.pem', 'utf-8'),
+        key: fs.readFileSync('./private_key.pem', 'utf-8'),
+        passphrase: process.env.SICOOB_PASS_PHRASE
     }
 
 })
