@@ -70,9 +70,7 @@ export class WhatsAppService {
             data: this.parseNotification(message)
         };
         try {
-            const response = await axios(config)
-            console.log(response)
-
+            await axios(config)
         } catch (error) {
             console.log('error', error)
         }
@@ -83,6 +81,12 @@ export class WhatsAppService {
         const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
         const sentDetails = async () => {
             const bills = await this.billService.getBillWithContactByPhoneNumber(currentPhoneNumber)
+            if (!bills.length) {
+                await this.sendMessage({
+                    to: currentPhoneNumber,
+                    text: 'nenhum cobrança encontrada'
+                })
+            }
             for (const bill of bills) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
@@ -103,7 +107,7 @@ export class WhatsAppService {
         const defaultMessage = async () => {
             await this.sendMessage({
                 to: currentPhoneNumber,
-                text: 'mesg default'
+                text: 'msg default'
             })
             console.log('default command')
 
@@ -115,7 +119,9 @@ export class WhatsAppService {
         }
 
         try {
-            await commands[message.replaceAll(' ', '').toLowerCase()]()
+            const command = message.replaceAll(' ', '').toLowerCase()
+            console.log('command', command)
+            await commands[command]()
         } catch {
             defaultMessage()
         }
