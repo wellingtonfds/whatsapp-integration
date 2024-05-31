@@ -122,7 +122,8 @@ export class WhatsAppService {
             const command = message.replaceAll(' ', '').toLowerCase()
             console.log('command', command)
             await commands[command]()
-        } catch {
+        } catch (e) {
+            console.log('error', e)
             defaultMessage()
         }
 
