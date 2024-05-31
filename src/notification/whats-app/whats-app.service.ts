@@ -80,8 +80,8 @@ export class WhatsAppService {
     }
 
     public async answerContact(phoneNumber: string, message: string) {
+        const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
         const sentDetails = async () => {
-            const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
             const bills = await this.billService.getBillWithContactByPhoneNumber(currentPhoneNumber)
             for (const bill of bills) {
                 await this.sendMessage({
@@ -100,16 +100,22 @@ export class WhatsAppService {
             // find bill not paid yet
             // send notification
         }
-        const defaultMessage = () => {
+        const defaultMessage = async () => {
+            await this.sendMessage({
+                to: currentPhoneNumber,
+                text: 'mesg default'
+            })
             console.log('default command')
-            // send template with menu
+
         }
         const commands = {
-            'VerDetalhes': sentDetails
+            'verdetalhes': sentDetails,
+            'tesouraria': ''
+
         }
 
         try {
-            await commands[message.replaceAll(' ', '')]()
+            await commands[message.replaceAll(' ', '').toLowerCase()]()
         } catch {
             defaultMessage()
         }
