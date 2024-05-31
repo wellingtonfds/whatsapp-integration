@@ -28,9 +28,11 @@ export class PaymentService {
         const agent = new https.Agent({
             keepAlive: true,
             requestCert: true,
-            rejectUnauthorized: true,
+            rejectUnauthorized: false,
             cert: this.config.get('sicoob.cert'),
             key: this.config.get('sicoob.key'),
+            passphrase: '15082017'
+
 
         })
         const config = {
@@ -40,7 +42,8 @@ export class PaymentService {
             maxBodyLength: Infinity,
             url: `https://auth.sicoob.com.br/auth/realms/cooperado/protocol/openid-connect/token`,
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
             },
             data: {
                 grant_type: 'client_credentials',
