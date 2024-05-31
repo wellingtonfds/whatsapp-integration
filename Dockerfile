@@ -22,7 +22,6 @@ COPY ./nest-cli.json ./
 COPY ./.prettierrc ./
 COPY ./.eslintrc.js ./
 COPY ./prisma ./
-COPY ./certs ./
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
