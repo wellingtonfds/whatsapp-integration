@@ -18,7 +18,9 @@ class SocioBuilder {
             mensagem: '',
             valor: '',
             idsLancamentos: [],
-            cpf: ''
+            cpf: '',
+            competencia: '',
+            dataVencimento: ''
         }
 
         this.valoresDetalhados = new Map()
@@ -31,7 +33,9 @@ class SocioBuilder {
         this.socio.telefone = this.aplicarMascaraTelefone(this.socio.telefoneInput)
         this.processarLancamentos(lancamentosCliente)
         this.socio.cpf = cliente.documento
+
         this.gerarMensagem(tipos)
+
         return this.socio
     }
 

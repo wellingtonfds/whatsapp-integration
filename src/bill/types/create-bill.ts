@@ -7,4 +7,6 @@ export interface CreateBill {
     clientDocument: string
     clientCrmId: number
     description?: string
+    dueDate: Date
+    effectiveDate: Date
 }

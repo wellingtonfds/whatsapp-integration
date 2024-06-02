@@ -9,4 +9,6 @@ export interface Socio {
     valor: string;
     idsLancamentos: number[];
     cpf: string
+    competencia: string
+    dataVencimento: string
 }

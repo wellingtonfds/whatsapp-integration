@@ -13,18 +13,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 model Notification {
-   id          BigInt    @id @default(autoincrement())
-   type        NotificationType
-   message     Json
-   answered    Boolean @default(false)
-   sent        DateTime?
-   contact   Contact @relation(fields: [contactId], references: [id])
-   contactId BigInt 
-   createdAt   DateTime           @default(now())
-   updatedAt   DateTime           @updatedAt
+  id        BigInt           @id @default(autoincrement())
+  type      NotificationType
+  message   Json
+  answered  Boolean          @default(false)
+  sent      DateTime?
+  contact   Contact          @relation(fields: [contactId], references: [id])
+  contactId BigInt
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 }
 
 enum NotificationType {
@@ -33,34 +31,49 @@ enum NotificationType {
 }
 
 model Bill {
-  id          BigInt    @id @default(autoincrement())
-  value       Decimal
-  paymentIdList String
-  paymentDate DateTime?
-  description   String?
-  pixTaxId      String
-  pixKey        String?
-  pixQrCode     String?
-  pixCreatedAt  DateTime?
-  paymentValue  Decimal?
-  pixExpiration DateTime?
-  crmUpdate     DateTime?
-  contact   Contact @relation(fields: [contactId], references: [id])
-  contactId BigInt
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  id               BigInt          @id @default(autoincrement())
+  value            Decimal
+  paymentIdList    String
+  //Competência
+  effectiveDate    DateTime
+  //Data de vencimento
+  dueDate          DateTime
+  paymentDate      DateTime?
+  description      String?
+  pixTaxId         String
+  pixKey           String?
+  pixQrCode        String?
+  pixCreatedAt     DateTime?
+  paymentValue     Decimal?
+  pixExpiration    DateTime?
+  crmUpdate        DateTime?
+  sicoobLoteCobvId BigInt?
+  sicoobLoteCobv   SicoobLoteCobv? @relation(fields: [sicoobLoteCobvId], references: [id])
+  contact          Contact         @relation(fields: [contactId], references: [id])
+  contactId        BigInt
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 }
 
-
 model Contact {
-  id          BigInt    @id @default(autoincrement())
-  phoneNumber String
-  CPF         String?
-  name        String
-  crmId       Int?
-  email       String?
-  notification  Notification[]
-  bill        Bill[] 
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  id           BigInt         @id @default(autoincrement())
+  phoneNumber  String
+  CPF          String?
+  name         String
+  crmId        Int?
+  email        String?
+  notification Notification[]
+  bill         Bill[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model SicoobLoteCobv {
+  id                       BigInt   @id @default(autoincrement())
+  expiredData              DateTime
+  description              String
+  validateAfterExpiredData Int
+  bills                    Bill[]
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 }

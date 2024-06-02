@@ -30,6 +30,8 @@ export class GranatumService {
                 const lancamentosCliente = lancamentos.filter((lanc: Lancamento) => lanc.pessoa_id === cliente.id);
                 const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente, tipos);
                 if (socioObj.valorTotal > 0) {
+                    // cliente.
+                    const [primeiroLancamento] = lancamentosCliente
                     this.billService.create({
                         clientCrmId: socioObj.id,
                         phoneNumber: socioObj.telefoneInput,
@@ -38,7 +40,12 @@ export class GranatumService {
                         value: socioObj.valorTotal,
                         paymentIdList: socioObj.idsLancamentos.join(','),
                         pixTaxId: '',
-                        description: socioObj.mensagem
+                        description: socioObj.mensagem,
+                        dueDate: new Date(primeiroLancamento.data_vencimento),
+                        effectiveDate: new Date(primeiroLancamento.data_competencia)
+
+
+
 
                     })
                 }
