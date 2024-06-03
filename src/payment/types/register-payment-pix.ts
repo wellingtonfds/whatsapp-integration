@@ -5,24 +5,34 @@ interface InfoAdicional {
 
 interface Valor {
     original: string;
-    modalidadeAlteracao: number;
+    modalidadeAlteracao?: number;
 }
 
 interface Devedor {
-    cnpj: string;
+    cnpj?: string;
     nome: string;
+    logradouro: string
+    cidade: string
+    uf: string
+    cep: string
+    cpf: string
 }
 
 interface Calendario {
-    expiracao: number;
+    dataDeVencimento: string;
+    validadeAposVencimento: number
 }
 
 export interface Payment {
+    txid: string
+    loc: {
+        id: number
+    }
     calendario: Calendario;
     devedor: Devedor;
     valor: Valor;
     chave: string;
     solicitacaoPagador: string;
-    infoAdicionais: InfoAdicional[];
+    infoAdicionais?: InfoAdicional[];
 }
 
