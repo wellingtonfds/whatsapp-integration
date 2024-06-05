@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { default as dayjs } from 'dayjs';
+import { v4 as uuid4 } from "uuid";
 import { BillService } from '../bill/bill.service';
 import SocioBuilder from './helpers/socioBuilder';
 import ContaTipo from './types/contaTipo';
@@ -29,6 +30,7 @@ export class GranatumService {
             return clientes.map((cliente: Cliente) => {
                 const lancamentosCliente = lancamentos.filter((lanc: Lancamento) => lanc.pessoa_id === cliente.id);
                 const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente, tipos);
+                const [primeiroLancamento] = lancamentosCliente
                 if (socioObj.valorTotal > 0) {
                     this.billService.create({
                         clientCrmId: socioObj.id,
@@ -37,10 +39,10 @@ export class GranatumService {
                         clientDocument: socioObj.cpf,
                         value: socioObj.valorTotal,
                         paymentIdList: socioObj.idsLancamentos.join(','),
-                        pixTaxId: '',
+                        pixTaxId: uuid4().replaceAll('-', ''),
                         description: socioObj.mensagem,
-                        dueDate: new Date(socioObj.dataVencimento),
-                        effectiveDate: new Date(socioObj.competencia)
+                        dueDate: new Date(primeiroLancamento.data_vencimento),
+                        effectiveDate: new Date(primeiroLancamento.data_competencia)
 
                     })
                 }

@@ -19,8 +19,7 @@ class SocioBuilder {
             valor: '',
             idsLancamentos: [],
             cpf: '',
-            competencia: '',
-            dataVencimento: ''
+
         }
 
         this.valoresDetalhados = new Map()
