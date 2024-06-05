@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Bill, Prisma } from '@prisma/client';
 import { ContactService } from '../contact/contact.service';
 import { BillRepository } from './bill.repository';
 import { CreateBill } from './types/create-bill';
@@ -55,6 +56,13 @@ export class BillService {
 
     public async getBillWithContactByPhoneNumber(phoneNumber: string) {
         return this.billRepository.getBillWithContactByPhoneNumber(phoneNumber)
+    }
+
+    public async getBillByTxId(txId: string): Promise<Bill> {
+        return this.billRepository.getBillByTxId(txId)
+    }
+    public async update(bill: Prisma.BillUpdateInput): Promise<Bill> {
+        return this.billRepository.update(bill)
     }
 
 }

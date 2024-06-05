@@ -38,7 +38,9 @@ export class GranatumService {
                         value: socioObj.valorTotal,
                         paymentIdList: socioObj.idsLancamentos.join(','),
                         pixTaxId: '',
-                        description: socioObj.mensagem
+                        description: socioObj.mensagem,
+                        dueDate: new Date(socioObj.dataVencimento),
+                        effectiveDate: new Date(socioObj.competencia)
 
                     })
                 }

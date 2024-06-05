@@ -72,4 +72,24 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
             }
         })
     }
+
+    public async getBillByTxId(txId: string) {
+        return this.bill.findFirst({
+            where: {
+                pixTaxId: txId
+            }
+        })
+    }
+
+    public async update(bill: Prisma.BillUpdateInput): Promise<Bill> {
+        return this.bill.update({
+            where: {
+                id: BigInt(bill.id.toString())
+            },
+            data: bill
+        })
+    }
+
+
+
 }

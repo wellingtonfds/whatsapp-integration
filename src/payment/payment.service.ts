@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import https from 'https';
 import { BillService } from '../bill/bill.service';
+import { ResponseWebhook } from './sicoob/types/response-webhook';
 import { PaymentList } from './types/register-many-payment-pix';
 import { Payment } from './types/register-payment-pix';
 
@@ -10,6 +11,7 @@ import { Payment } from './types/register-payment-pix';
 export class PaymentService {
 
     private apiUrl: string
+    private readonly logger: Logger
 
     public constructor(
         private config: ConfigService,
@@ -82,6 +84,29 @@ export class PaymentService {
             cobsv: payments
         }
         const response = await this.sendRequest(this.apiUrl, 'put', payload)
+    }
+
+    public async handleWebhook({ pix: pixList }: ResponseWebhook) {
+
+        for (const pix of pixList) {
+            const { txid } = pix
+            const bill = await this.billService.getBillByTxId(txid)
+            if (bill) {
+
+                await this.billService.update({
+                    ...bill,
+                    paymentValue: pix.valor,
+                    paymentDate: pix.horario,
+
+                })
+                continue
+            }
+
+            this.logger.error({
+                action: 'webhook-sicoob',
+                pix
+            })
+        }
     }
 
 }
