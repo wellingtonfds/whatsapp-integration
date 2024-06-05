@@ -1,11 +1,17 @@
 export interface CreateBill {
+    clientData: {
+        name: string
+        CPF: string
+        crmId?: number
+        address: string
+        state: string
+        city: string
+        postalCode: string
+        phoneNumber: string
+    }
     value: number
     paymentIdList: string
     pixTaxId: string
-    phoneNumber: string
-    clienteName: string
-    clientDocument: string
-    clientCrmId: number
     description?: string
     dueDate: Date
     effectiveDate: Date

@@ -62,6 +62,10 @@ model Contact {
   name         String
   crmId        Int?
   email        String?
+  address      String
+  state        String
+  city         String
+  postalCode   String
   notification Notification[]
   bill         Bill[]
   createdAt    DateTime       @default(now())

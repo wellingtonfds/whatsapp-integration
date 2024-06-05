@@ -13,10 +13,10 @@ export class ContactController {
     @Post()
     public async create(@Body() requestData: CreateContactDto) {
 
-        const { id, ...contact } = await this.contactService.createOrUpdate(requestData)
-        return {
-            id: id.toString(),
-            ...contact
-        }
+        // const { id, ...contact } = await this.contactService.createOrUpdate(requestData)
+        // return {
+        //     id: id.toString(),
+        //     ...contact
+        // }
     }
 }

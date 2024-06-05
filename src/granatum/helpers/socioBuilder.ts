@@ -19,6 +19,11 @@ class SocioBuilder {
             valor: '',
             idsLancamentos: [],
             cpf: '',
+            cep: '',
+            cidade: '',
+            logradouro: '',
+            uf: ''
+
 
         }
 
@@ -26,16 +31,24 @@ class SocioBuilder {
     }
 
     preencherDados(cliente: Cliente, lancamentosCliente: Lancamento[], tipos: string[]): Socio {
-        this.socio.id = cliente.id
-        this.socio.nome = cliente.nome
-        this.socio.telefoneInput = this.obterTelefoneDeCliente(cliente)
-        this.socio.telefone = this.aplicarMascaraTelefone(this.socio.telefoneInput)
-        this.processarLancamentos(lancamentosCliente)
-        this.socio.cpf = cliente.documento
+        try {
+            this.socio.id = cliente.id
+            this.socio.nome = cliente?.nome ?? ''
+            this.socio.telefoneInput = this.obterTelefoneDeCliente(cliente)
+            this.socio.telefone = this.aplicarMascaraTelefone(this.socio.telefoneInput)
+            this.processarLancamentos(lancamentosCliente)
+            this.socio.cpf = cliente.documento
+            this.socio.cep = cliente?.cep.length ? cliente?.cep : '32659152'
+            this.socio.cidade = cliente?.cidade?.nome ?? 'Betim'
+            this.socio.logradouro = `${cliente?.endereco?.length ? cliente?.endereco : 'Al. do Cisnes'}, ${cliente?.endereco_numero.length ? cliente?.endereco_numero : '53'}`
+            this.socio.uf = cliente?.estado?.sigla ?? 'MG'
+            this.gerarMensagem(tipos)
+            return this.socio
+        } catch (e) {
+            console.log('error socio', cliente)
+            return this.socio
+        }
 
-        this.gerarMensagem(tipos)
-
-        return this.socio
     }
 
     private gerarMensagem(tipos: string[]): void {

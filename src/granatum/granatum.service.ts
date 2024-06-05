@@ -27,16 +27,23 @@ export class GranatumService {
             const clientes = await this.getClientes();
             const tipos = [LancamentoTipo.Receber, LancamentoTipo.ReceberAtrasados];
             const lancamentos = await this.getLancamentos(tipos);
+
+
             return clientes.map((cliente: Cliente) => {
                 const lancamentosCliente = lancamentos.filter((lanc: Lancamento) => lanc.pessoa_id === cliente.id);
                 const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente, tipos);
                 const [primeiroLancamento] = lancamentosCliente
                 if (socioObj.valorTotal > 0) {
                     this.billService.create({
-                        clientCrmId: socioObj.id,
-                        phoneNumber: socioObj.telefoneInput,
-                        clienteName: socioObj.nome,
-                        clientDocument: socioObj.cpf,
+                        clientData: {
+                            name: socioObj?.nome ?? '',
+                            CPF: socioObj.cpf,
+                            address: socioObj.logradouro,
+                            state: socioObj.uf,
+                            city: socioObj.cidade,
+                            postalCode: socioObj.cep,
+                            phoneNumber: socioObj.telefoneInput
+                        },
                         value: socioObj.valorTotal,
                         paymentIdList: socioObj.idsLancamentos.join(','),
                         pixTaxId: uuid4().replaceAll('-', ''),

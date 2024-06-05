@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Contact } from '@prisma/client';
+import { Contact, Prisma } from '@prisma/client';
 import { ContactRepository } from './contact.repository';
-import { CreateContactDto } from './dto/create-contract.dto';
 
 @Injectable()
 export class ContactService {
@@ -18,19 +17,20 @@ export class ContactService {
         return this.contactRepository.findContactByUniqueKey(cpf, email, phoneNumber, crmId)
     }
 
-    public async createOrUpdate(data: CreateContactDto): Promise<Contact> {
-        const { phoneNumber, CPF, email, crmId, name } = data
-        const exists = await this.findContactByUniqueKey(CPF, email, phoneNumber, crmId)
-        if (exists) {
-            const response = await this.contactRepository.update(exists.id, {
-                ...exists,
-                phoneNumber,
-                email,
-                crmId,
-                name
-            })
-            return response
+    public async createOrUpdate(data: Prisma.ContactCreateInput): Promise<Contact> {
+        try {
+            const { phoneNumber, CPF, email, crmId } = data
+            const exists = await this.findContactByUniqueKey(CPF, email, phoneNumber, crmId)
+            if (exists) {
+                const response = await this.contactRepository.update(exists.id, {
+                    ...exists,
+                    ...data
+                })
+                return response
+            }
+            return await this.contactRepository.create(data)
+        } catch (e) {
+            console.log(e)
         }
-        return await this.contactRepository.create(data)
     }
 }

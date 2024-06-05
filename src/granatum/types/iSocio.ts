@@ -9,4 +9,8 @@ export interface Socio {
     valor: string;
     idsLancamentos: number[];
     cpf: string
+    cep: string
+    cidade: string
+    uf: string
+    logradouro: string
 }
