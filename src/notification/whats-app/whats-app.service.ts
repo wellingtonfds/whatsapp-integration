@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { HttpStatusCode } from 'axios';
-import { BillService } from '../../bill/bill.service';
+import { ContactService } from 'src/contact/contact.service';
 import addNinthDigitOnPhoneNumber from '../../helper/add-ninth-digit-on-phone-number';
 import { WhatsAppMessageIncomingBody } from './types/whats-app-message-incoming';
 import { WhatsAppSendMessage } from './types/whats-app-send-message';
@@ -9,10 +9,13 @@ import { WhatsAppSendMessage } from './types/whats-app-send-message';
 @Injectable()
 export class WhatsAppService {
 
-    constructor(private config: ConfigService, private billService: BillService) { }
+    constructor(
+        private config: ConfigService,
+        private contactService: ContactService
+    ) { }
 
     private parseNotificationTemplate(message: WhatsAppSendMessage) {
-        const parameters = message.parameters.map(para => ({
+        const parameters = message?.parameters?.map(para => ({
             type: 'text',
             text: para
         }))
@@ -79,49 +82,79 @@ export class WhatsAppService {
 
     public async answerContact(phoneNumber: string, message: string) {
         const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
+        const finContactWithBills = await this.contactService.findContactByPhoneNumber(phoneNumber, true)
         const sentDetails = async () => {
-            const bills = await this.billService.getBillWithContactByPhoneNumber(currentPhoneNumber)
-            if (!bills.length) {
+
+            if (!finContactWithBills?.bill.length) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
                     text: 'nenhum cobrança encontrada'
                 })
             }
-            for (const bill of bills) {
+            for (const bill of finContactWithBills.bill) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
                     text: bill.description
                 })
             }
-            // 1 - Recuperar cobranças 
-            // 2 - enviar msgs
 
-            // console.log('sendMSG')
-            // const sendMsg = this.sendMessage({
-            //     to: msg.from,
-            //     text: 'Servidor respondendo vc'
-            // })
-            // find bill not paid yet
-            // send notification
+        }
+        const sentBill = async () => {
+            const { name } = finContactWithBills
+            for (const bill of finContactWithBills.bill) {
+                const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(bill.effectiveDate)
+                await this.sendMessage({
+                    to: currentPhoneNumber,
+                    template: 'enviar_chamada_boleto',
+                    parameters: [
+                        name,
+                        effectiveDate,
+                        bill.value.toString(),
+                        bill.pixKey ?? 'chave_teste'
+                    ]
+                })
+            }
+
+
+
         }
         const defaultMessage = async () => {
             await this.sendMessage({
                 to: currentPhoneNumber,
-                text: 'msg default'
+                template: 'mensagem_principal '
             })
-            console.log('default command')
-
+        }
+        const callTreasurer = async () => {
+            const { name } = finContactWithBills
+            await this.sendMessage({
+                to: currentPhoneNumber,
+                template: 'falar_tesoureiro',
+                parameters: [
+                    name
+                ]
+            })
         }
         const commands = {
             'verdetalhes': sentDetails,
-            'tesouraria': ''
+            'mensalidade': sentBill,
+            'falarcomtesoureiro': callTreasurer
 
         }
 
         try {
-            const command = message.replaceAll(' ', '').toLowerCase()
-            console.log('command', command)
-            await commands[command]()
+            if (finContactWithBills) {
+                const command = message.replaceAll(' ', '').toLowerCase()
+                console.log('command', command)
+                await commands[command]()
+                return
+            }
+            await this.sendMessage({
+                to: currentPhoneNumber,
+                template: 'telefone_nao_cadastrado'
+            })
+
+
+
         } catch (e) {
             console.log('error', e)
             defaultMessage()
@@ -132,7 +165,8 @@ export class WhatsAppService {
 
     public async webhookHandleMessages(whatsAppMessageIncomingBody: WhatsAppMessageIncomingBody) {
         const { entry, object } = whatsAppMessageIncomingBody
-        if (object !== 'whatsapp_business_account') {
+
+        if (object !== 'whatsapp_business_account' || !Array.isArray(entry)) {
             return
         }
         const actions: Promise<void>[] = []

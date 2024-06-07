@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Contact, Prisma, PrismaClient } from '@prisma/client';
+import { ContactWithBill } from './types/contact-with-bill';
 
 @Injectable()
 export class ContactRepository extends PrismaClient implements OnModuleInit {
@@ -27,10 +28,17 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
             }
         })
     }
-    public async findContactByPhoneNumber(phoneNumber: string) {
+    public async findContactByPhoneNumber(phoneNumber: string, includeBill = false): Promise<ContactWithBill> {
         return this.contact.findFirst({
             where: {
                 phoneNumber: { equals: phoneNumber },
+            },
+            include: {
+                bill: {
+                    where: {
+                        paymentDate: null
+                    }
+                }
             }
         })
     }

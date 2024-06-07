@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Contact, Prisma } from '@prisma/client';
 import { ContactRepository } from './contact.repository';
+import { ContactWithBill } from './types/contact-with-bill';
 
 @Injectable()
 export class ContactService {
@@ -10,7 +11,7 @@ export class ContactService {
     public async findByCPF(cpf: string): Promise<Contact> {
         return this.contactRepository.findByCPF(cpf)
     }
-    public async findContactByPhoneNumber(phoneNumber: string): Promise<Contact> {
+    public async findContactByPhoneNumber(phoneNumber: string, includeBill = false): Promise<ContactWithBill> {
         return this.contactRepository.findContactByPhoneNumber(phoneNumber)
     }
     public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string, crmId: number): Promise<Contact> {
