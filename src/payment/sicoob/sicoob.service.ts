@@ -1,20 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import https from 'https';
-import { PaymentList } from '../types/register-many-payment-pix';
-import { Payment } from '../types/register-payment-pix';
 import { ExportConfigAxios } from './types/export-config-axios';
+import { RegisterBill } from './types/register-bill';
+import { ResponseRegisterBill } from './types/response-register-bill';
 
 @Injectable()
 export class SicoobService {
 
-    private apiUrl: string
+    private readonly logger: Logger
 
     public constructor(
         private config: ConfigService
     ) {
-        this.apiUrl = 'https://api.sicoob.com.br/'
+
     }
 
     private exportBaseAxiosConfig(configRequest: ExportConfigAxios) {
@@ -60,19 +60,21 @@ export class SicoobService {
                 client_id,
                 Authorization: `Bearer  ${access_token}`
             }
-        } catch (e) {
-            console.log('SICOOB_ERROR', e)
-            throw e
+        } catch (error) {
+            this.logger.error({
+                'action': 'getToken',
+                error
+            })
+            throw error
         }
-
 
     }
 
-
     private async sendRequest<r>(uri: string, method: 'post' | 'get' | 'put', data: string | object): Promise<r> {
+        const url = this.config.get('sicoob.apiUrl') + uri
         const { Authorization, client_id } = await this.getToken()
         const config = await this.exportBaseAxiosConfig({
-            url: this.apiUrl + uri,
+            url,
             method,
             data,
             headers: {
@@ -82,26 +84,24 @@ export class SicoobService {
             }
         })
         try {
-            const response = await axios(config)
+            const response = await axios<r>(config)
             return response.data
 
-        } catch (e) {
-            console.log('error', e)
+        } catch (error) {
+            this.logger.error({
+                'action': 'sendRequest',
+                error
+            })
+
+            throw error
         }
 
     }
-    public async registerPix(payment: Payment) {
-        const response = await this.sendRequest<Promise<{ data: string }>>(this.apiUrl, 'post', payment)
+    public async registerPix({ txid, ...payment }: RegisterBill): Promise<ResponseRegisterBill> {
+        const response = await this.sendRequest<Promise<ResponseRegisterBill>>(`/pix/api/v2/cobv/${txid}`, 'put', payment)
         return response
     }
 
-    public async registerManyPix(id: string, description: string, payments: Payment[]) {
-        const payload: PaymentList = {
-            descricao: description,
-            cobsv: payments
-        }
-        const response = await this.sendRequest(`pix/api/v2/lotecobv/${id}`, 'put', payload)
-        return response
-    }
+
 
 }

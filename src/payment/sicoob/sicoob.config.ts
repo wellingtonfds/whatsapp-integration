@@ -1,5 +1,3 @@
-
-
 import fs from 'fs'
 
 export default () => ({
@@ -11,5 +9,4 @@ export default () => ({
         key: fs.readFileSync('./private_key.pem', 'utf-8'),
         passphrase: process.env.SICOOB_PASS_PHRASE
     }
-
 })

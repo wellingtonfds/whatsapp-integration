@@ -23,7 +23,7 @@ interface Calendario {
     validadeAposVencimento: number
 }
 
-export interface Payment {
+export interface RegisterBill {
     calendario: Calendario
     devedor: Devedor
     txid: string
