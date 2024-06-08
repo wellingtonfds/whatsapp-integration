@@ -30,6 +30,9 @@ export class BillService {
     public async getBillWithoutPixKey(take = 10, skip = 0): Promise<ContactWithBill[]> {
         return await this.billRepository.getBillWithoutPixKey(take, skip)
     }
+    public async getBillWithPixKeyAndNotPayYet(take = 10, skip = 0): Promise<ContactWithBill[]> {
+        return await this.billRepository.getBillWithPixKeyAndNotPayYet(take, skip)
+    }
 
     public async getBillWithContactByMonth(month: number, year: number): Promise<ResponseListBill[]> {
 

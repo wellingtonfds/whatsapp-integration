@@ -28,9 +28,9 @@ export class NotificationController {
     @UseGuards(ApiKeyGuard)
     @ApiSecurity('Api-Key')
     @Get('processing')
-    /**
-     * processingMessages
-     */
+    @ApiOperation({
+        description: '<b>Warning!!</b> Be careful, this api send all notifications not sent on database '
+    })
     public processingMessages() {
         this.notificationService.processingMessages()
     }

@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { Notification } from '@prisma/client';
 import { HttpStatusCode } from 'axios';
 import { BillService } from '../bill/bill.service';
@@ -11,6 +11,7 @@ import { WhatsAppService } from './whats-app/whats-app.service';
 @Injectable()
 export class NotificationService {
 
+    private readonly logger: Logger = new Logger(NotificationService.name);
     constructor(
         private notificationRepository: NotificationRepository,
         private whatsAppService: WhatsAppService,
@@ -79,30 +80,41 @@ export class NotificationService {
     }
 
     public async registerNotifications() {
-        const bills = await this.billService.getBillWithoutPixKey()
-        const response = []
-        for (const bill of bills) {
-            const { contact, ...billData } = bill
-            const notification = await this.create({
-                contactCpf: contact.CPF,
-                template: 'enviar_chamada_boleto',
-                parameters: [
-                    contact.name,
-                    'Maio',
-                    billData.value.toString(),
-                    'código pix de teste'
-                ]
-            })
 
-            response.push({
-                ...notification,
-                id: notification.id.toString(),
-                contactId: notification.contactId.toString()
-            })
 
-        }
-        return response
+        this.logger.verbose('start register notifications')
+        const dueDateDays = 10
+        const take = 10
+        let skip = 0
+
+        let listBill = await await this.billService.getBillWithPixKeyAndNotPayYet(take, skip)
+
+
+        do {
+
+            for (const bill of listBill) {
+                const { contact, ...billData } = bill
+                const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(bill.effectiveDate)
+                const notification = await this.create({
+                    contactCpf: contact.CPF,
+                    template: 'enviar_chamada_boleto',
+                    parameters: [
+                        contact.name,
+                        effectiveDate,
+                        billData.value.toString(),
+                        bill.pixQrCode
+                    ]
+                })
+
+            }
+            skip += take
+            listBill = await this.billService.getBillWithPixKeyAndNotPayYet(take, skip)
+            this.logger.verbose('end register notifications')
+
+        } while (listBill.length)
+
     }
+
 
     public async webhookWhatAppHandleMessages(body) {
         this.whatsAppService.webhookHandleMessages(body)
