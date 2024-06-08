@@ -133,13 +133,23 @@ export class WhatsAppService {
         }
         const callTreasurer = async () => {
             const { name } = finContactWithBills
-            await this.sendMessage({
-                to: currentPhoneNumber,
-                template: 'falar_tesoureiro',
-                parameters: [
-                    name
-                ]
-            })
+            Promise.all([
+                await this.sendMessage({
+                    to: currentPhoneNumber,
+                    template: 'falar_tesoureiro',
+                    parameters: [
+                        name
+                    ]
+                }),
+                await this.sendMessage({
+                    to: this.config.get('whatsApp.treasurerPhone'),
+                    template: 'mensagem_para_tesoureiro ',
+                    parameters: [
+                        name,
+                        currentPhoneNumber
+                    ]
+                })
+            ])
         }
         const commands = {
             'verdetalhes': sentDetails,
