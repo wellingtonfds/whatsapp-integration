@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Bill, Prisma, PrismaClient } from "@prisma/client";
+import { ContactWithBill } from "./types/bill-with-contactl";
 
 
 @Injectable()
@@ -32,13 +33,17 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
     }
 
 
-    public async getBillWithoutPixKey() {
+    public async getBillWithoutPixKey(take = 10, skip = 0): Promise<ContactWithBill[]> {
         return this.bill.findMany({
             where: {
                 pixKey: null,
                 pixCreatedAt: null,
-                pixExpiration: null
+                pixExpiration: null,
+                paymentDate: null,
+                paymentValue: null
             },
+            take,
+            skip,
             include: {
                 contact: true
             }

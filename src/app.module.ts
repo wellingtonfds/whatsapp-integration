@@ -9,6 +9,7 @@ import granatumConfig from './granatum/granatum.config';
 import { GranatumModule } from './granatum/granatum.module';
 import { NotificationModule } from './notification/notification.module';
 import whatsAppConfig from './notification/whats-app/whats-app.config';
+import paymentConfig from './payment/payment.config';
 import { PaymentModule } from './payment/payment.module';
 import sicoobConfig from './payment/sicoob/sicoob.config';
 
@@ -17,7 +18,7 @@ import sicoobConfig from './payment/sicoob/sicoob.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [whatsAppConfig, granatumConfig, sicoobConfig]
+      load: [whatsAppConfig, granatumConfig, sicoobConfig, paymentConfig]
     }),
     ScheduleModule.forRoot(),
     NotificationModule,

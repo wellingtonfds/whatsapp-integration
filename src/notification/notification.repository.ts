@@ -8,6 +8,8 @@ import { NotificationWithContact } from "./types/notification-with-contact";
 @Injectable()
 export class NotificationRepository extends PrismaClient implements OnModuleInit {
 
+
+
     async onModuleInit() {
         await this.$connect()
     }
@@ -24,18 +26,16 @@ export class NotificationRepository extends PrismaClient implements OnModuleInit
 
     async create(data: CreateNotificationDto, contact: Contact): Promise<Notification> {
 
-        try {
-            const not = await this.notification.create({
-                data: {
-                    message: data.message,
-                    type: data.type,
-                    contactId: contact.id
-                }
-            })
-            return not
-        } catch (e) {
-            console.log(e)
-        }
+
+        const not = await this.notification.create({
+            data: {
+                message: data.message,
+                type: data.type,
+                contactId: contact.id
+            }
+        })
+        return not
+
     }
 
     async getMessagesNotProcessed(): Promise<NotificationWithContact[]> {

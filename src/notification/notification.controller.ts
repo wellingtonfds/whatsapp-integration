@@ -1,12 +1,15 @@
-import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiSecurity } from '@nestjs/swagger';
+import { Body, Controller, Get, Logger, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { ApiKeyGuard } from '../auth/api-guard';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationService } from './notification.service';
 
+@ApiTags('Notification')
 @Controller('notification')
 export class NotificationController {
+
+    private readonly logger: Logger = new Logger(NotificationController.name);
 
     constructor(private notificationService: NotificationService) { }
 
@@ -62,7 +65,7 @@ export class NotificationController {
         description: 'Register webhook whatsApp'
     })
     public async registerWebhook(@Req() req: Request, @Res() res: Response) {
-        console.log('testando', req.query)
+        this.logger.verbose('validando webhook facebook')
         const mode = req.query["hub.mode"]
         const token = req.query["hub.verify_token"]
         const WEBHOOK_VERIFY_TOKEN = 'ValidacaoToken'
@@ -70,7 +73,7 @@ export class NotificationController {
             const challenge = req.query["hub.challenge"];
             // respond with 200 OK and challenge token from the request
             res.status(200).send(challenge);
-            console.log("Webhook verified successfully!");
+            this.logger.verbose('Webhook verified successfully!')
             return
         }
 
@@ -83,7 +86,7 @@ export class NotificationController {
         description: 'Webhook whatsApp'
     })
     public async webhook(@Req() req: Request, @Res() res: Response) {
-        console.log('query', req.query)
+
         const mode = req.query["hub.mode"]
         const token = req.query["hub.verify_token"]
         const WEBHOOK_VERIFY_TOKEN = 'ValidacaoToken'
@@ -91,7 +94,7 @@ export class NotificationController {
             const challenge = req.query["hub.challenge"];
             // respond with 200 OK and challenge token from the request
             res.status(200).send(challenge);
-            console.log("Webhook verified successfully!");
+            this.logger.verbose('Webhook verified successfully!')
             return
         }
 

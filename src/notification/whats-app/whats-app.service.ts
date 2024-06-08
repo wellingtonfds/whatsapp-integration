@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { HttpStatusCode } from 'axios';
 import { ContactService } from 'src/contact/contact.service';
@@ -9,10 +9,14 @@ import { WhatsAppSendMessage } from './types/whats-app-send-message';
 @Injectable()
 export class WhatsAppService {
 
+    private readonly logger: Logger = new Logger(WhatsAppService.name);
+
     constructor(
         private config: ConfigService,
         private contactService: ContactService
     ) { }
+
+
 
     private parseNotificationTemplate(message: WhatsAppSendMessage) {
         const parameters = message?.parameters?.map(para => ({
@@ -75,7 +79,10 @@ export class WhatsAppService {
         try {
             await axios(config)
         } catch (error) {
-            console.log('error', error)
+            this.logger.error({
+                action: 'sendMessage',
+                error
+            })
         }
 
     }
@@ -144,7 +151,7 @@ export class WhatsAppService {
         try {
             if (finContactWithBills) {
                 const command = message.replaceAll(' ', '').toLowerCase()
-                console.log('command', command)
+
                 await commands[command]()
                 return
             }
@@ -156,7 +163,7 @@ export class WhatsAppService {
 
 
         } catch (e) {
-            console.log('error', e)
+
             defaultMessage()
         }
 
@@ -176,20 +183,18 @@ export class WhatsAppService {
                 item.changes.forEach(change => {
                     change.value?.messages.forEach(msg => {
                         const { from, text: { body } } = msg
-                        console.log({
-                            from,
-                            body
-                        })
                         this.answerContact(from, body)
-
-
                     })
                 })
             })
 
             Promise.all(actions)
-        } catch (e) {
-            console.log('return of services not normalized')
+        } catch (error) {
+            this.logger.error({
+                action: 'webhookHandleMessages',
+                error
+            })
+
         }
 
     }

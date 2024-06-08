@@ -69,7 +69,7 @@ export class NotificationService {
 
             this.sendNotification(msg)
         })
-        console.log(msgs)
+
     }
 
     async sendNotificationsByContact(contactId: bigint) {

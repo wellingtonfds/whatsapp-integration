@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Bill, Prisma } from '@prisma/client';
 import { ContactService } from '../contact/contact.service';
 import { BillRepository } from './bill.repository';
+import { ContactWithBill } from './types/bill-with-contactl';
 import { CreateBill } from './types/create-bill';
 import { ResponseListBill } from './types/response-list-bill';
 
@@ -26,8 +27,8 @@ export class BillService {
         // return this.billRepository.create(createData)
     }
 
-    public async getBillWithoutPixKey() {
-        return await this.billRepository.getBillWithoutPixKey()
+    public async getBillWithoutPixKey(take = 10, skip = 0): Promise<ContactWithBill[]> {
+        return await this.billRepository.getBillWithoutPixKey(take, skip)
     }
 
     public async getBillWithContactByMonth(month: number, year: number): Promise<ResponseListBill[]> {

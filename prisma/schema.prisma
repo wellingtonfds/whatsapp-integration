@@ -47,8 +47,6 @@ model Bill {
   paymentValue     Decimal?
   pixExpiration    DateTime?
   crmUpdate        DateTime?
-  sicoobLoteCobvId BigInt?
-  sicoobLoteCobv   SicoobLoteCobv? @relation(fields: [sicoobLoteCobvId], references: [id])
   contact          Contact         @relation(fields: [contactId], references: [id])
   contactId        BigInt
   createdAt        DateTime        @default(now())
@@ -70,14 +68,4 @@ model Contact {
   bill         Bill[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-}
-
-model SicoobLoteCobv {
-  id                       BigInt   @id @default(autoincrement())
-  expiredData              DateTime
-  description              String
-  validateAfterExpiredData Int
-  bills                    Bill[]
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
 }

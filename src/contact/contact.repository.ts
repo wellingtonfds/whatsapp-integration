@@ -10,11 +10,9 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
     }
 
     public async create(data: Prisma.ContactCreateInput): Promise<Contact> {
-        try {
-            return await this.contact.create({ data })
-        } catch (error) {
-            console.log(error)
-        }
+
+        return await this.contact.create({ data })
+
     }
     public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string, crmId: number) {
         return this.contact.findFirst({
