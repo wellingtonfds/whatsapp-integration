@@ -26,7 +26,8 @@ class SocioBuilder {
             uf: '',
             socioPaiId: null,
             dataVencimento: '',
-            dataCompetencia: ''
+            dataCompetencia: '',
+            status: ''
         }
 
         this.valoresDetalhados = new Map()

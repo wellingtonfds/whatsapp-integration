@@ -47,6 +47,12 @@ export class GranatumService {
                     }
                 }
             });
+
+            socios.forEach(socio => {
+                if (!socio.principal && !socio.socioPaiId) {
+                    socio.status = 'Contato dependente não encontrou o contato principal'
+                }
+            });
     
             // Criação dos registros de cobrança para sócios principais
             socios.forEach((socio: Socio) => {
