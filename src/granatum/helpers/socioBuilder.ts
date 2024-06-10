@@ -9,11 +9,12 @@ class SocioBuilder {
 
     constructor() {
         this.socio = {
-            enviar: false,
+            principal: false,
             id: 0,
             nome: '',
-            telefone: '',
-            telefoneInput: '',
+            telefoneEnvioWhatsapp: '',
+            telefoneEnvio: '',
+            telefonePrincipal: '',
             valorTotal: 0,
             mensagem: '',
             valor: '',
@@ -22,45 +23,42 @@ class SocioBuilder {
             cep: '',
             cidade: '',
             logradouro: '',
-            uf: ''
-
-
+            uf: '',
+            socioPaiId: null,
+            dataVencimento: '',
+            dataCompetencia: ''
         }
 
         this.valoresDetalhados = new Map()
     }
 
-    preencherDados(cliente: Cliente, lancamentosCliente: Lancamento[], tipos: string[]): Socio {
+    preencherDados(cliente: Cliente, lancamentosCliente: Lancamento[]): Socio {
 
         this.socio.id = cliente.id
         this.socio.nome = cliente?.nome ?? ''
-        this.socio.telefoneInput = this.obterTelefoneDeCliente(cliente)
-        this.socio.telefone = this.aplicarMascaraTelefone(this.socio.telefoneInput)
+        this.socio.telefoneEnvio = this.obterTelefoneDoCampoObservacao(cliente)
+        this.socio.telefoneEnvioWhatsapp = this.aplicarMascaraTelefone(this.socio.telefoneEnvio)
+        this.socio.telefonePrincipal = this.obterTelefoneDoCampoTelefone(cliente)
+        this.socio.principal = this.stringsIguais(this.socio.telefoneEnvio, this.socio.telefonePrincipal)
         this.processarLancamentos(lancamentosCliente)
         this.socio.cpf = cliente.documento
         this.socio.cep = cliente?.cep.length ? cliente?.cep : '32659152'
         this.socio.cidade = cliente?.cidade?.nome ?? 'Betim'
         this.socio.logradouro = `${cliente?.endereco?.length ? cliente?.endereco : 'Al. do Cisnes'}, ${cliente?.endereco_numero.length ? cliente?.endereco_numero : '53'}`
         this.socio.uf = cliente?.estado?.sigla ?? 'MG'
-        this.gerarMensagem(tipos)
+        this.gerarMensagem()
         return this.socio
-
 
     }
 
-    private gerarMensagem(tipos: string[]): void {
+    stringsIguais(str1: string | null | undefined, str2: string | null | undefined): boolean {
+        if (str1 == null || str2 == null) return false;
+        return str1.trim() === str2.trim();
+    }
+
+    private gerarMensagem(): void {
         const primeiroNome = this.socio.nome.split(' ')[0];
         let stringBuilder: string[] = [];
-
-        if (tipos.includes(LancamentoTipo.Receber)) {
-            stringBuilder.push(`Olá, *${primeiroNome}*.\nSegue abaixo a descrição dos valores da sua mensalidade:\n\n`)
-        } else if (tipos.includes(LancamentoTipo.ReceberAtrasados)) {
-            stringBuilder.push(`Olá, *${primeiroNome}*.\nAinda não identificamos o pagamento dos valores descritos abaixo, referentes à sua mensalidade:\n\n`)
-        } else if (tipos.includes(LancamentoTipo.Recebidos)) {
-            stringBuilder.push(`Olá, *${primeiroNome}*.\nConfirmamos o recebimento dos seguintes valores:\n\n`)
-        } else {
-            throw new Error("Não há template de mensagem definido para este status de lançamento")
-        }
 
         for (let [periodo, valores] of this.valoresDetalhados) {
             stringBuilder.push(`*${periodo}*\n`)
@@ -88,16 +86,8 @@ class SocioBuilder {
             stringBuilder.push(`*Total do mês: ${this.formatarValorComoMoeda(valorTotalPeriodo)}*\n\n`)
         }
 
-        if (tipos.includes("LR")) {
-            stringBuilder.push(`*Total pago: ${this.formatarValorComoMoeda(this.socio.valorTotal)}*`)
-        } else {
-            stringBuilder.push(`*Total a pagar: ${this.formatarValorComoMoeda(this.socio.valorTotal)}*`)
-        }
-
-        if (tipos.includes("RA") && !tipos.includes("R")) {
-            stringBuilder.push("\n\nCaso realizou o pagamento, desconsidere a notificação e nos encaminhe o comprovante. Agradecemos a compreensão!")
-        }
-
+        stringBuilder.push(`*Total do sócio: ${this.formatarValorComoMoeda(this.socio.valorTotal)}*`)
+        
         this.socio.mensagem = stringBuilder.join('')
     }
 
@@ -118,16 +108,22 @@ class SocioBuilder {
         return numeroFormatado
     }
 
-    private obterTelefoneDeCliente(cliente: Cliente): string {
-        let telefone = ''
-        const obs = cliente.observacao
-        const telefoneCadastro = cliente.telefone.replace(/-/g, '')
+    private obterTelefoneDoCampoObservacao(cliente: Cliente): string {
+        let telefone = '';
+        const obs = cliente.observacao;
 
         if (obs && obs.includes('(') && obs.includes(')')) {
-            let inicio = obs.indexOf('(')
-            let fim = obs.indexOf(')')
-            telefone = obs.substring(inicio + 1, fim)
-        } else if (telefoneCadastro && telefoneCadastro.length >= 8 && !isNaN(parseInt(telefoneCadastro, 10))) {
+            let inicio = obs.indexOf('(');
+            let fim = obs.indexOf(')');
+            telefone = obs.substring(inicio + 1, fim).replace(/-/g, '');
+        }
+        return telefone;
+    }
+
+    private obterTelefoneDoCampoTelefone(cliente: Cliente): string {
+        let telefone = '';
+        const telefoneCadastro = cliente.telefone.replace(/-/g, '');
+        if (telefoneCadastro && telefoneCadastro.length >= 8 && !isNaN(parseInt(telefoneCadastro, 10))) {
             telefone = `55${telefoneCadastro}`
         }
         return telefone;
@@ -162,6 +158,10 @@ class SocioBuilder {
         });
 
         this.socio.valorTotal = parseFloat(this.socio.valorTotal.toFixed(2));
+
+        const lancamento = lancamentosCliente[0]
+        this.socio.dataCompetencia = lancamento.data_competencia
+        this.socio.dataVencimento = lancamento.data_vencimento
     }
 }
 

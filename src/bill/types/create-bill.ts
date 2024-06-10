@@ -1,5 +1,7 @@
 export interface CreateBill {
     clientData: {
+        socioId: number
+        socioPaiId: number
         name: string
         CPF: string
         crmId?: number

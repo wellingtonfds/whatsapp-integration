@@ -27,34 +27,53 @@ export class GranatumService {
             const clientes = await this.getClientes();
             const tipos = [LancamentoTipo.Receber, LancamentoTipo.ReceberAtrasados];
             const lancamentos = await this.getLancamentos(tipos);
-
-
-            return clientes.map((cliente: Cliente) => {
+    
+            const telefoneToSocioMap = new Map<string, Socio>();
+    
+            // Primeira passada para criar todos os sócios
+            const socios = clientes.map((cliente: Cliente) => {
                 const lancamentosCliente = lancamentos.filter((lanc: Lancamento) => lanc.pessoa_id === cliente.id);
-                const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente, tipos);
-                const [primeiroLancamento] = lancamentosCliente
-                if (socioObj.valorTotal > 0) {
-                    this.billService.create({
-                        clientData: {
-                            name: socioObj?.nome ?? '',
-                            CPF: socioObj.cpf,
-                            address: socioObj.logradouro,
-                            state: socioObj.uf,
-                            city: socioObj.cidade,
-                            postalCode: socioObj.cep,
-                            phoneNumber: socioObj.telefoneInput
-                        },
-                        value: socioObj.valorTotal,
-                        paymentIdList: socioObj.idsLancamentos.join(','),
-                        pixTaxId: uuid4().replaceAll('-', ''),
-                        description: socioObj.mensagem,
-                        dueDate: new Date(primeiroLancamento.data_vencimento),
-                        effectiveDate: new Date(primeiroLancamento.data_competencia)
-
-                    })
-                }
+                const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente);
+                telefoneToSocioMap.set(socioObj.telefonePrincipal, socioObj);
                 return socioObj;
             });
+    
+            // Segunda passada para identificar sócios dependentes e preencher o socioPaiId
+            socios.forEach(socio => {
+                if (!socio.principal) {
+                    const socioPai = telefoneToSocioMap.get(socio.telefoneEnvio);
+                    if (socioPai) {
+                        socio.socioPaiId = socioPai.id;
+                    }
+                }
+            });
+    
+            // Criação dos registros de cobrança para sócios principais
+            socios.forEach((socio: Socio) => {
+                if (socio.valorTotal > 0) {
+                    this.billService.create({
+                        clientData: {
+                            socioId: socio.id,
+                            socioPaiId: socio.socioPaiId,
+                            name: socio?.nome ?? '',
+                            CPF: socio.cpf,
+                            address: socio.logradouro,
+                            state: socio.uf,
+                            city: socio.cidade,
+                            postalCode: socio.cep,
+                            phoneNumber: socio.telefoneEnvio
+                        },
+                        value: socio.valorTotal,
+                        paymentIdList: socio.idsLancamentos.join(','),
+                        pixTaxId: uuid4().replaceAll('-', ''),
+                        description: socio.mensagem,
+                        dueDate: new Date(socio.dataVencimento),
+                        effectiveDate: new Date(socio.dataCompetencia)
+                    });
+                }
+            });
+    
+            return socios;
         } catch (error: any) {
             console.error('Erro ao processar sócios:', error.message);
             throw error;
@@ -84,8 +103,8 @@ export class GranatumService {
         const contas = [ContaTipo.FluxoDeCaixa, ContaTipo.Caixa];
 
         const dataAtual = dayjs()
-        const dataInicial = dataAtual.clone().subtract(3, 'months').startOf('month').format('YYYY-MM-DD')
-        const dataFinal = dataAtual.clone().endOf('month').format('YYYY-MM-DD');
+        const dataInicial = dataAtual.clone().subtract(6, 'months').startOf('month').format('YYYY-MM-DD')
+        const dataFinal = dataAtual.clone().endOf('month').format('YYYY-MM-DD');    
 
         const lancamentos = await this.getLancamentosFiltrados(tipos, contas, dataInicial, dataFinal);
 

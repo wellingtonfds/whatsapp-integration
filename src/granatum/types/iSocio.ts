@@ -1,9 +1,10 @@
 export interface Socio {
-    enviar: boolean;
+    principal: boolean;
     id: number;
     nome: string;
-    telefone: string;
-    telefoneInput: string;
+    telefoneEnvioWhatsapp: string;
+    telefoneEnvio: string;
+    telefonePrincipal: string;
     valorTotal: number;
     mensagem: string;
     valor: string;
@@ -12,5 +13,8 @@ export interface Socio {
     cep: string
     cidade: string
     uf: string
-    logradouro: string
+    logradouro: string,
+    socioPaiId: number,
+    dataVencimento: string;
+    dataCompetencia: string
 }
