@@ -154,7 +154,7 @@ class SocioBuilder {
 
             this.socio.valorTotal += valor
 
-            this.socio.idsLancamentos.push(lancamento.id)
+            this.socio.idsLancamentos.push(lancamento.id + '-' + lancamento.lancamento_composto_id)
         });
 
         this.socio.valorTotal = parseFloat(this.socio.valorTotal.toFixed(2));
