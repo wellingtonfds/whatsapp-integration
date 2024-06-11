@@ -1,7 +1,6 @@
 import { Cliente } from '../types/iCliente';
 import { Lancamento } from '../types/iLancamento';
 import { Socio } from '../types/iSocio';
-import LancamentoTipo from '../types/lancamentoTipo';
 
 class SocioBuilder {
     private socio: Socio
@@ -88,7 +87,7 @@ class SocioBuilder {
         }
 
         stringBuilder.push(`*Total do sócio: ${this.formatarValorComoMoeda(this.socio.valorTotal)}*`)
-        
+
         this.socio.mensagem = stringBuilder.join('')
     }
 
@@ -160,9 +159,12 @@ class SocioBuilder {
 
         this.socio.valorTotal = parseFloat(this.socio.valorTotal.toFixed(2));
 
-        const lancamento = lancamentosCliente[0]
-        this.socio.dataCompetencia = lancamento.data_competencia
-        this.socio.dataVencimento = lancamento.data_vencimento
+        const [lancamento] = lancamentosCliente
+        if (lancamento) {
+            this.socio.dataCompetencia = lancamento.data_competencia
+            this.socio.dataVencimento = lancamento.data_vencimento
+
+        }
     }
 }
 

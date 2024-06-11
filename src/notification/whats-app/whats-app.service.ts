@@ -89,16 +89,20 @@ export class WhatsAppService {
 
     public async answerContact(phoneNumber: string, message: string) {
         const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
-        const finContactWithBills = await this.contactService.findContactByPhoneNumber(phoneNumber, true)
+        const { bill: billMain, ...findContactWithBills } = await this.contactService.findContactByPhoneNumber(phoneNumber, true)
+        const { bill: billParent } = await this.contactService.findContactByCrmIdWithBills(findContactWithBills?.crmId)
+
+        const bills = [...billMain, ...billParent]
+        // const fin
         const sentDetails = async () => {
 
-            if (!finContactWithBills?.bill.length) {
+            if (!bills.length) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
                     text: 'nenhum cobrança encontrada'
                 })
             }
-            for (const bill of finContactWithBills.bill) {
+            for (const bill of bills) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
                     text: bill.description
@@ -107,8 +111,8 @@ export class WhatsAppService {
 
         }
         const sentBill = async () => {
-            const { name } = finContactWithBills
-            for (const bill of finContactWithBills.bill) {
+            const { name } = findContactWithBills
+            for (const bill of bills) {
                 const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(bill.effectiveDate)
                 await this.sendMessage({
                     to: currentPhoneNumber,
@@ -132,7 +136,7 @@ export class WhatsAppService {
             })
         }
         const callTreasurer = async () => {
-            const { name } = finContactWithBills
+            const { name } = findContactWithBills
             Promise.all([
                 await this.sendMessage({
                     to: currentPhoneNumber,
@@ -159,7 +163,7 @@ export class WhatsAppService {
         }
 
         try {
-            if (finContactWithBills) {
+            if (findContactWithBills) {
                 const command = message.replaceAll(' ', '').toLowerCase()
 
                 await commands[command]()

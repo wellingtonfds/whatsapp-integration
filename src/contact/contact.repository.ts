@@ -14,15 +14,17 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
         return await this.contact.create({ data })
 
     }
-    public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string, crmId: number) {
+    public async findContactByUniqueKey(cpf?: string, email?: string, phoneNumber?: string, crmId?: number) {
+        const OR = [
+            (cpf?.length && { CPF: { equals: cpf } }),
+            (email?.length && { email: { equals: email } }),
+            (phoneNumber?.length && { phoneNumber: { equals: phoneNumber } }),
+            (!!crmId && { crmId: { equals: crmId } }),
+        ].filter(item => item)
+
         return this.contact.findFirst({
             where: {
-                OR: [
-                    { CPF: { equals: cpf } },
-                    { email: { equals: email } },
-                    { phoneNumber: { equals: phoneNumber } },
-                    { crmId: { equals: crmId } },
-                ]
+                OR
             }
         })
     }
@@ -30,6 +32,20 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
         return this.contact.findFirst({
             where: {
                 phoneNumber: { equals: phoneNumber },
+            },
+            include: {
+                bill: {
+                    where: {
+                        paymentDate: null
+                    }
+                }
+            }
+        })
+    }
+    public async findContactByCrmIdWithBillsNotPay(crmId: number): Promise<ContactWithBill> {
+        return this.contact.findFirst({
+            where: {
+                crmId,
             },
             include: {
                 bill: {

@@ -27,9 +27,9 @@ export class GranatumService {
             const clientes = await this.getClientes();
             const tipos = [LancamentoTipo.Receber, LancamentoTipo.ReceberAtrasados];
             const lancamentos = await this.getLancamentos(tipos);
-    
+
             const telefoneToSocioMap = new Map<string, Socio>();
-    
+
             // Primeira passada para criar todos os sócios
             const socios = clientes.map((cliente: Cliente) => {
                 const lancamentosCliente = lancamentos.filter((lanc: Lancamento) => lanc.pessoa_id === cliente.id);
@@ -37,30 +37,34 @@ export class GranatumService {
                 telefoneToSocioMap.set(socioObj.telefonePrincipal, socioObj);
                 return socioObj;
             });
-    
+
             // Segunda passada para identificar sócios dependentes e preencher o socioPaiId
-            socios.forEach(socio => {
+            socios.map(socio => {
                 if (!socio.principal) {
                     const socioPai = telefoneToSocioMap.get(socio.telefoneEnvio);
                     if (socioPai) {
                         socio.socioPaiId = socioPai.id;
                     }
-                }
-            });
 
-            socios.forEach(socio => {
+                }
+                return socio
+            })
+
+            socios.map(socio => {
                 if (!socio.principal && !socio.socioPaiId) {
                     socio.status = 'Contato dependente não encontrou o contato principal'
+
                 }
+                return socio
             });
-    
+
             // Criação dos registros de cobrança para sócios principais
             socios.forEach((socio: Socio) => {
                 if (socio.valorTotal > 0) {
                     this.billService.create({
                         clientData: {
-                            socioId: socio.id,
-                            socioPaiId: socio.socioPaiId,
+                            crmId: socio.id,
+                            mainCrmId: socio?.socioPaiId,
                             name: socio?.nome ?? '',
                             CPF: socio.cpf,
                             address: socio.logradouro,
@@ -77,8 +81,9 @@ export class GranatumService {
                         effectiveDate: new Date(socio.dataCompetencia)
                     });
                 }
+                //Criar ou atualizar o contato de qualquer forma
             });
-    
+
             return socios;
         } catch (error: any) {
             console.error('Erro ao processar sócios:', error.message);
@@ -110,7 +115,7 @@ export class GranatumService {
 
         const dataAtual = dayjs()
         const dataInicial = dataAtual.clone().subtract(6, 'months').startOf('month').format('YYYY-MM-DD')
-        const dataFinal = dataAtual.clone().endOf('month').format('YYYY-MM-DD');    
+        const dataFinal = dataAtual.clone().endOf('month').format('YYYY-MM-DD');
 
         const lancamentos = await this.getLancamentosFiltrados(tipos, contas, dataInicial, dataFinal);
 

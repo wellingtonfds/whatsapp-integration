@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BillService } from '../bill/bill.service';
+import { ContactService } from '../contact/contact.service';
 import { SicoobService } from './sicoob/sicoob.service';
 import { ResponseWebhook } from './sicoob/types/response-webhook';
 
@@ -12,7 +13,8 @@ export class PaymentService {
     public constructor(
         private billService: BillService,
         private sicoobService: SicoobService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private contactService: ContactService
     ) { }
 
     //@Cron(CronExpression.EVERY_30_SECONDS)
@@ -26,6 +28,19 @@ export class PaymentService {
         do {
             for (const bill of listBill) {
                 const { contact, ...billData } = bill
+                let mainContact = contact
+                if (contact?.mainCrmId) {
+                    mainContact = await this.contactService.findContactByUniqueKey(null, null, null, contact.mainCrmId)
+                    if (!mainContact) {
+                        this.logger.error({
+                            action: 'registerPixKeys',
+                            msg: 'usuário sem contato pai',
+                            contact
+                        })
+                        continue
+                    }
+                }
+
                 if (!contact?.CPF) {
                     this.logger.error({
                         action: 'registerPixKeys',
@@ -56,12 +71,12 @@ export class PaymentService {
                         },
                         txid: bill.pixTaxId,
                         devedor: {
-                            logradouro: contact.address,
-                            cidade: contact.city,
-                            uf: contact.state,
-                            cep: contact.postalCode,
-                            cpf: contact.CPF,
-                            nome: contact.name
+                            logradouro: mainContact.address,
+                            cidade: mainContact.city,
+                            uf: mainContact.state,
+                            cep: mainContact.postalCode,
+                            cpf: mainContact.CPF,
+                            nome: mainContact.name
                         },
                         valor: {
                             original: bill.value.toString()
@@ -91,7 +106,7 @@ export class PaymentService {
             skip += take
             // busca
             listBill = await this.billService.getBillWithoutPixKey(take, skip)
-
+            await new Promise(resolve => setTimeout(resolve, 30000))
 
         } while (listBill.length)
         this.logger.verbose('end register bills')

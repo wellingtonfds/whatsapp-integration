@@ -19,7 +19,7 @@ export class BillService {
                 ...bill,
                 contact: {
                     connect: {
-                        id: contact.id
+                        id: contact.id,
                     }
                 }
             })

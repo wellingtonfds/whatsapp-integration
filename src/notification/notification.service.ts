@@ -83,11 +83,10 @@ export class NotificationService {
 
 
         this.logger.verbose('start register notifications')
-        const dueDateDays = 10
         const take = 10
         let skip = 0
 
-        let listBill = await await this.billService.getBillWithPixKeyAndNotPayYet(take, skip)
+        let listBill = await this.billService.getBillWithPixKeyAndNotPayYet(take, skip)
 
 
         do {
@@ -95,11 +94,23 @@ export class NotificationService {
             for (const bill of listBill) {
                 const { contact, ...billData } = bill
                 const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(bill.effectiveDate)
-                const notification = await this.create({
-                    contactCpf: contact.CPF,
+                let mainContact = contact
+                if (contact?.mainCrmId) {
+                    mainContact = await this.contactService.findContactByUniqueKey(null, null, null, contact.mainCrmId)
+                    if (!mainContact) {
+                        this.logger.error({
+                            action: 'registerPixKeys',
+                            msg: 'usuário sem contato pai',
+                            contact
+                        })
+                        continue
+                    }
+                }
+                await this.create({
+                    contactCpf: mainContact.CPF,
                     template: 'enviar_chamada_boleto',
                     parameters: [
-                        contact.name,
+                        mainContact.name,
                         effectiveDate,
                         billData.value.toString(),
                         bill.pixQrCode

@@ -18,6 +18,10 @@ export class ContactService {
         return this.contactRepository.findContactByUniqueKey(cpf, email, phoneNumber, crmId)
     }
 
+    public async findContactByCrmIdWithBills(crmId: number): Promise<ContactWithBill> {
+        return this.contactRepository.findContactByCrmIdWithBillsNotPay(crmId)
+    }
+
     public async createOrUpdate(data: Prisma.ContactCreateInput): Promise<Contact> {
 
         const { phoneNumber, CPF, email, crmId } = data

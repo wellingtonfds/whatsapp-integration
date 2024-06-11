@@ -59,6 +59,7 @@ model Contact {
   CPF          String?
   name         String
   crmId        Int?
+  mainCrmId    Int?
   email        String?
   address      String
   state        String
