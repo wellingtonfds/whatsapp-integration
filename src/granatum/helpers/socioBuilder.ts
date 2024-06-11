@@ -154,7 +154,12 @@ class SocioBuilder {
 
             this.socio.valorTotal += valor
 
-            this.socio.idsLancamentos.push(lancamento.id + '-' + lancamento.lancamento_composto_id)
+             // Adicionando o ID do lançamento ao array, com ou sem o composto ID
+            if (lancamento.lancamento_composto_id) {
+                this.socio.idsLancamentos.push(`${lancamento.id}-${lancamento.lancamento_composto_id}`);
+            } else {
+                this.socio.idsLancamentos.push(`${lancamento.id}`);
+            }
         });
 
         this.socio.valorTotal = parseFloat(this.socio.valorTotal.toFixed(2));
