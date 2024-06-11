@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber, Max, Min } from "class-validator";
+import { IsBoolean, IsNumber, Max, Min } from "class-validator";
+import { ToBoolean } from "src/helper/to-boolean";
 
 export class ListBillDto {
 
@@ -21,5 +22,13 @@ export class ListBillDto {
     @Max(2030)
     @Type(() => Number)
     year: number
+
+    @ApiProperty({
+        required: false,
+        default: false
+    })
+    @IsBoolean()
+    @ToBoolean()
+    withPixKey?: boolean
 
 }

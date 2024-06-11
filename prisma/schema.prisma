@@ -30,6 +30,11 @@ enum NotificationType {
   TEXT
 }
 
+enum BillType {
+  MonthlyFee
+  MembershipFee
+}
+
 model Bill {
   id               BigInt          @id @default(autoincrement())
   value            Decimal
@@ -43,6 +48,7 @@ model Bill {
   pixTaxId         String
   pixKey           String?
   pixQrCode        String?
+  type             BillType @default(MembershipFee)
   pixCreatedAt     DateTime?
   paymentValue     Decimal?
   pixExpiration    DateTime?

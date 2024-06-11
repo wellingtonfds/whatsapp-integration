@@ -4,7 +4,6 @@ import { ContactService } from '../contact/contact.service';
 import { BillRepository } from './bill.repository';
 import { ContactWithBill } from './types/bill-with-contactl';
 import { CreateBill } from './types/create-bill';
-import { ResponseListBill } from './types/response-list-bill';
 
 
 @Injectable()
@@ -34,22 +33,29 @@ export class BillService {
         return await this.billRepository.getBillWithPixKeyAndNotPayYet(take, skip)
     }
 
-    public async getBillWithContactByMonth(month: number, year: number): Promise<ResponseListBill[]> {
+    public async getBillWithContactByMonth(month: number, year: number, withPixKey = false) {
 
-        const date = new Date(year, month)
-        const billList = await this.billRepository.getBillWithContactByMonthAndYear(date)
-        return billList.map(bill => ({
-            id: bill.id.toString(),
-            paymentListId: bill.paymentIdList,
-            crmId: bill.contact.crmId,
-            name: bill.contact.name,
-            phoneNumber: bill.contact.phoneNumber,
-            value: bill.value.toString(),
-            paymentValue: bill.paymentValue?.toLocaleString() ?? '',
-            paymentDate: bill.paymentDate?.toLocaleString() ?? '',
-            createdAt: bill.createdAt?.toLocaleString() ?? '',
-            crmUpdate: bill.crmUpdate?.toLocaleString() ?? '',
-        }))
+        const startDay = new Date(year, month)
+        const lastDay = new Date(year, month + 1, 0)
+
+        const billList = await this.billRepository.getBillWithContactByMonthAndYear(startDay, lastDay, withPixKey)
+        const billListProcessed = billList.map(bill => {
+            const { contact, ...bilData } = bill
+            return {
+                paymentListId: bilData.paymentIdList,
+                crmId: contact.crmId,
+                name: contact.name,
+                phoneNumber: contact.phoneNumber,
+                ...bilData,
+                id: bilData.id.toString(),
+                contactId: contact.id.toString()
+            }
+        })
+
+        return {
+            total: billListProcessed.length,
+            bills: billListProcessed
+        }
 
     }
 

@@ -1,3 +1,5 @@
+import { BillType } from "@prisma/client"
+
 export interface CreateBill {
     clientData: {
         name: string
@@ -10,6 +12,7 @@ export interface CreateBill {
         postalCode: string
         phoneNumber: string
     }
+    type?: BillType
     value: number
     paymentIdList: string
     pixTaxId: string

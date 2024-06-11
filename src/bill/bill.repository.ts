@@ -69,12 +69,19 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
         })
     }
 
-    public async getBillWithContactByMonthAndYear(date: Date) {
+    public async getBillWithContactByMonthAndYear(start: Date, end: Date, withPixKey = false) {
+
+        const AND = [
+            (withPixKey && { pixKey: { not: null } }),
+
+        ].filter(item => item)
         return this.bill.findMany({
             where: {
                 createdAt: {
-                    gte: date
-                }
+                    gte: start,
+                    lte: end
+                },
+                AND
             },
             include: {
                 contact: true

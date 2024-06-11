@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { BillType } from '@prisma/client';
 import axios from 'axios';
 import { default as dayjs } from 'dayjs';
+import { ContactService } from 'src/contact/contact.service';
 import { v4 as uuid4 } from "uuid";
 import { BillService } from '../bill/bill.service';
 import SocioBuilder from './helpers/socioBuilder';
@@ -17,7 +19,11 @@ export class GranatumService {
 
     private apiUrl: string
     private token: string
-    constructor(private config: ConfigService, private billService: BillService) {
+    constructor(
+        private config: ConfigService,
+        private billService: BillService,
+        private contactService: ContactService
+    ) {
         this.apiUrl = this.config.get<string>('granatum.apiUrl')
         this.token = this.config.get<string>('granatum.token')
     }
@@ -59,20 +65,22 @@ export class GranatumService {
             });
 
             // Criação dos registros de cobrança para sócios principais
-            socios.forEach((socio: Socio) => {
+            for (const socio of socios) {
+                const clientData = {
+                    crmId: socio.id,
+                    mainCrmId: socio?.socioPaiId,
+                    name: socio?.nome ?? '',
+                    CPF: socio.cpf,
+                    address: socio.logradouro,
+                    state: socio.uf,
+                    city: socio.cidade,
+                    postalCode: socio.cep,
+                    phoneNumber: socio.telefoneEnvio
+                }
                 if (socio.valorTotal > 0) {
                     this.billService.create({
-                        clientData: {
-                            crmId: socio.id,
-                            mainCrmId: socio?.socioPaiId,
-                            name: socio?.nome ?? '',
-                            CPF: socio.cpf,
-                            address: socio.logradouro,
-                            state: socio.uf,
-                            city: socio.cidade,
-                            postalCode: socio.cep,
-                            phoneNumber: socio.telefoneEnvio
-                        },
+                        clientData,
+                        type: BillType.MembershipFee,
                         value: socio.valorTotal,
                         paymentIdList: socio.idsLancamentos.join(','),
                         pixTaxId: uuid4().replaceAll('-', ''),
@@ -80,9 +88,12 @@ export class GranatumService {
                         dueDate: new Date(socio.dataVencimento),
                         effectiveDate: new Date(socio.dataCompetencia)
                     });
+                    continue
                 }
-                //Criar ou atualizar o contato de qualquer forma
-            });
+                await this.contactService.createOrUpdate(clientData)
+
+            }
+
 
             return socios;
         } catch (error: any) {
