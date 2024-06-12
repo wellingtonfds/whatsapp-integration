@@ -36,7 +36,13 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
             include: {
                 bill: {
                     where: {
-                        paymentDate: null
+                        paymentDate: null,
+                        pixQrCode: {
+                            not: null
+                        },
+                        dueDate: {
+                            gte: new Date()
+                        }
                     }
                 }
             }
@@ -50,7 +56,13 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
             include: {
                 bill: {
                     where: {
-                        paymentDate: null
+                        paymentDate: null,
+                        pixQrCode: {
+                            not: null
+                        },
+                        dueDate: {
+                            gte: new Date()
+                        }
                     }
                 }
             }

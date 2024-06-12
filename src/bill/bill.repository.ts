@@ -54,6 +54,7 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
     public async getBillWithPixKeyAndNotPayYet(take = 10, skip = 0): Promise<ContactWithBill[]> {
         return this.bill.findMany({
             where: {
+                pixTaxId: { not: null },
                 pixKey: { not: null },
                 pixCreatedAt: { not: null },
                 pixExpiration: { not: null },

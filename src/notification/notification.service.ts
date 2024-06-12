@@ -108,11 +108,11 @@ export class NotificationService {
                 }
                 await this.create({
                     contactCpf: mainContact.CPF,
-                    template: 'enviar_chamada_boleto',
+                    template: 'cobranca_mensalidade ',
                     parameters: [
                         mainContact.name,
                         effectiveDate,
-                        billData.value.toString(),
+                        (new Intl.NumberFormat('pt-BR').format(bill.value.toNumber())),
                         bill.pixQrCode
                     ]
                 })

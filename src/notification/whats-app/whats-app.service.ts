@@ -90,9 +90,12 @@ export class WhatsAppService {
     public async answerContact(phoneNumber: string, message: string) {
         const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
         const { bill: billMain, ...findContactWithBills } = await this.contactService.findContactByPhoneNumber(phoneNumber, true)
-        const { bill: billParent } = await this.contactService.findContactByCrmIdWithBills(findContactWithBills?.crmId)
+        let bills = [...billMain]
+        if (findContactWithBills?.mainCrmId) {
+            const { bill: billParent } = await this.contactService.findContactByCrmIdWithBills(findContactWithBills?.mainCrmId)
+            bills = [...billMain, ...billParent]
+        }
 
-        const bills = [...billMain, ...billParent]
         // const fin
         const sentDetails = async () => {
 
@@ -116,12 +119,12 @@ export class WhatsAppService {
                 const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(bill.effectiveDate)
                 await this.sendMessage({
                     to: currentPhoneNumber,
-                    template: 'enviar_chamada_boleto',
+                    template: 'cobranca_mensalidade',
                     parameters: [
                         name,
                         effectiveDate,
-                        bill.value.toString(),
-                        bill.pixKey ?? 'chave_teste'
+                        (new Intl.NumberFormat('pt-BR').format(bill.value.toNumber())),
+                        bill.pixQrCode
                     ]
                 })
             }
@@ -156,7 +159,7 @@ export class WhatsAppService {
             ])
         }
         const commands = {
-            'verdetalhes': sentDetails,
+            'verdetalhesmensalidade': sentDetails,
             'mensalidade': sentBill,
             'falarcomtesoureiro': callTreasurer
 
