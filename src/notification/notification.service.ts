@@ -63,7 +63,9 @@ export class NotificationService {
     }
 
 
+    // @Cron(CronExpression.EVERY_30_SECONDS)
     async processingMessages() {
+        this.logger.verbose('...send messages')
         const msgs = await this.notificationRepository.getMessagesNotProcessed()
 
         msgs.map(msg => {

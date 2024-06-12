@@ -63,7 +63,7 @@ export class BillService {
         return this.billRepository.getBillWithContactByPhoneNumber(phoneNumber)
     }
 
-    public async getBillByTxId(txId: string): Promise<Bill> {
+    public async getBillByTxId(txId: string): Promise<ContactWithBill> {
         return this.billRepository.getBillByTxId(txId)
     }
     public async update(bill: Prisma.BillUpdateInput): Promise<Bill> {

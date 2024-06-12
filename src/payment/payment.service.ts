@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BillService } from '../bill/bill.service';
 import { ContactService } from '../contact/contact.service';
+import { NotificationService } from '../notification/notification.service';
 import { SicoobService } from './sicoob/sicoob.service';
 import { ResponseWebhook } from './sicoob/types/response-webhook';
 
@@ -14,7 +15,8 @@ export class PaymentService {
         private billService: BillService,
         private sicoobService: SicoobService,
         private configService: ConfigService,
-        private contactService: ContactService
+        private contactService: ContactService,
+        private notificationService: NotificationService
     ) { }
 
     //@Cron(CronExpression.EVERY_30_SECONDS)
@@ -114,17 +116,29 @@ export class PaymentService {
     }
 
     public async handleWebhook({ pix: pixList }: ResponseWebhook) {
-
+        this.logger.verbose(pixList)
         for (const pix of pixList) {
             const { txid } = pix
-            const bill = await this.billService.getBillByTxId(txid)
+            const { contact, ...bill } = await this.billService.getBillByTxId(txid)
+            let mainContact = contact
+            if (contact?.mainCrmId) {
+                mainContact = await this.contactService.findContactByUniqueKey(undefined, undefined, undefined, contact.mainCrmId)
+            }
             if (bill) {
 
                 await this.billService.update({
                     ...bill,
-                    paymentValue: pix.valor,
-                    paymentDate: pix.horario,
+                    paymentValue: Number(pix.valor),
+                    paymentDate: new Date(pix.horario),
 
+                })
+                this.notificationService.create({
+                    contactCpf: mainContact.CPF,
+                    template: 'mensalidade_recebida',
+                    parameters: [
+                        mainContact.name,
+                        (new Intl.NumberFormat('pt-BR').format(Number(pix.valor))),
+                    ]
                 })
                 continue
             }

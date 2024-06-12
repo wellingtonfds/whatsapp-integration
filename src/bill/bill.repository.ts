@@ -104,10 +104,13 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
         })
     }
 
-    public async getBillByTxId(txId: string) {
+    public async getBillByTxId(txId: string): Promise<ContactWithBill> {
         return this.bill.findFirst({
             where: {
                 pixTaxId: txId
+            },
+            include: {
+                contact: true
             }
         })
     }
