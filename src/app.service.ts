@@ -4,6 +4,6 @@ import fs from 'fs';
 @Injectable()
 export class AppService {
   getHello(): string {
-    return fs.readFileSync('policy.html', 'utf-8')
+    return fs.readFileSync('./policy.html', 'utf-8')
   }
 }
