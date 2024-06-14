@@ -91,7 +91,7 @@ export class WhatsAppService {
         const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
         const findContactWithBills = await this.contactService.findContactByPhoneNumber(phoneNumber, true)
 
-        let bills = [...findContactWithBills?.bill]
+        let bills = []
         if (findContactWithBills?.mainCrmId) {
             const { bill: billParent } = await this.contactService.findContactByCrmIdWithBills(findContactWithBills?.mainCrmId)
             bills = [...findContactWithBills?.bill, ...billParent]
