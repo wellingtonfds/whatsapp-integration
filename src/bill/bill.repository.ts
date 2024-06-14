@@ -116,12 +116,16 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
     }
 
     public async update(bill: Prisma.BillUpdateInput): Promise<Bill> {
-        return this.bill.update({
-            where: {
-                id: BigInt(bill.id.toString())
-            },
-            data: bill
-        })
+        try {
+            return this.bill.update({
+                where: {
+                    id: BigInt(bill.id.toString())
+                },
+                data: bill
+            })
+        } catch (e) {
+            console.log(e)
+        }
     }
 
 

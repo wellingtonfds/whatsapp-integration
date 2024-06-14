@@ -65,27 +65,29 @@ export class PaymentService {
                 }
 
 
+                const sicoobPixData = await this.sicoobService.registerPix({
+                    calendario: {
+                        dataDeVencimento: dueData,
+                        validadeAposVencimento: dueDateDays
+                    },
+                    txid: bill.pixTaxId,
+                    devedor: {
+                        logradouro: mainContact.address,
+                        cidade: mainContact.city,
+                        uf: mainContact.state,
+                        cep: mainContact.postalCode,
+                        cpf: mainContact.CPF,
+                        nome: mainContact.name
+                    },
+                    valor: {
+                        original: bill.value.toString()
+                    },
+                    chave: this.configService.get('payment.pixKey'),
+                    solicitacaoPagador: `Mensalidade de  ${effectiveDate}`,
+                })
+
                 try {
-                    const sicoobPixData = await this.sicoobService.registerPix({
-                        calendario: {
-                            dataDeVencimento: dueData,
-                            validadeAposVencimento: dueDateDays
-                        },
-                        txid: bill.pixTaxId,
-                        devedor: {
-                            logradouro: mainContact.address,
-                            cidade: mainContact.city,
-                            uf: mainContact.state,
-                            cep: mainContact.postalCode,
-                            cpf: mainContact.CPF,
-                            nome: mainContact.name
-                        },
-                        valor: {
-                            original: bill.value.toString()
-                        },
-                        chave: this.configService.get('payment.pixKey'),
-                        solicitacaoPagador: `Mensalidade de  ${effectiveDate}`,
-                    })
+
                     await this.billService.update({
                         ...billData,
                         pixCreatedAt: currentDate,
