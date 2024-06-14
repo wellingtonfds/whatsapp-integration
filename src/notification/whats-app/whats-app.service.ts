@@ -89,11 +89,12 @@ export class WhatsAppService {
 
     public async answerContact(phoneNumber: string, message: string) {
         const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
-        const { bill: billMain, ...findContactWithBills } = await this.contactService.findContactByPhoneNumber(phoneNumber, true)
-        let bills = [...billMain]
+        const findContactWithBills = await this.contactService.findContactByPhoneNumber(phoneNumber, true)
+
+        let bills = [...findContactWithBills?.bill]
         if (findContactWithBills?.mainCrmId) {
             const { bill: billParent } = await this.contactService.findContactByCrmIdWithBills(findContactWithBills?.mainCrmId)
-            bills = [...billMain, ...billParent]
+            bills = [...findContactWithBills?.bill, ...billParent]
         }
 
         // const fin
