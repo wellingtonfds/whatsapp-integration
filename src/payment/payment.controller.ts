@@ -17,7 +17,8 @@ export class PaymentController {
 
     @Get('register/pix')
     public async registerPix() {
-        await this.paymentService.registerPixKeys()
+        this.paymentService.registerPixKeys()
+        return "estamos processando as cobranças"
     }
 
 }

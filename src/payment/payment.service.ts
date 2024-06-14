@@ -85,6 +85,7 @@ export class PaymentService {
                     chave: this.configService.get('payment.pixKey'),
                     solicitacaoPagador: `Mensalidade de  ${effectiveDate}`,
                 })
+                this.logger.verbose({ sicoobPixData })
 
                 try {
 
@@ -102,6 +103,7 @@ export class PaymentService {
                         action: 'registerPixKeys',
                         msg: 'Falhar ao registar pixKey',
                         bill,
+                        sicoobPixData,
                         error
 
                     })
