@@ -9,7 +9,7 @@ import { ResponseRegisterBill } from './types/response-register-bill';
 @Injectable()
 export class SicoobService {
 
-    private readonly logger: Logger
+    private readonly logger: Logger = new Logger(SicoobService.name);
 
     public constructor(
         private config: ConfigService
