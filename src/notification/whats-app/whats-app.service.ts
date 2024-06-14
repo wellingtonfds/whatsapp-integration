@@ -201,6 +201,12 @@ export class WhatsAppService {
                 item.changes.forEach(change => {
                     change.value?.messages.forEach(msg => {
                         const { from, text: { body } } = msg
+                        this.logger.verbose({
+                            action: 'whatsAppMsg',
+                            from,
+                            body
+
+                        })
                         this.answerContact(from, body)
                     })
                 })
