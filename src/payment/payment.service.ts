@@ -85,7 +85,7 @@ export class PaymentService {
                     chave: this.configService.get('payment.pixKey'),
                     solicitacaoPagador: `Mensalidade de  ${effectiveDate}`,
                 })
-                this.logger.verbose({ sicoobPixData })
+                this.logger.verbose({ sicoobPixData: JSON.stringify(sicoobPixData) })
 
                 try {
 
@@ -102,9 +102,9 @@ export class PaymentService {
                     this.logger.error({
                         action: 'registerPixKeys',
                         msg: 'Falhar ao registar pixKey',
-                        bill,
-                        sicoobPixData,
-                        error
+                        bill: JSON.stringify(bill),
+                        sicoobPixData: JSON.stringify(sicoobPixData),
+                        error: JSON.stringify(error)
 
                     })
                 }
@@ -112,7 +112,7 @@ export class PaymentService {
             skip += take
             // busca
             listBill = await this.billService.getBillWithoutPixKey(take, skip)
-            await new Promise(resolve => setTimeout(resolve, 30000))
+            await new Promise(resolve => setTimeout(resolve, 60000))
 
         } while (listBill.length)
         this.logger.verbose('end register bills')
