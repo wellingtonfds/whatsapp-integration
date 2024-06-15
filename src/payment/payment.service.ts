@@ -24,9 +24,9 @@ export class PaymentService {
         this.logger.verbose('start register bills')
         const dueDateDays = 10
         const take = 10
-        let skip = 0
 
-        let listBill = await this.billService.getBillWithoutPixKey(take, skip)
+
+        let listBill = await this.billService.getBillWithoutPixKey(take)
         do {
             for (const bill of listBill) {
                 const { contact, ...billData } = bill
@@ -85,7 +85,6 @@ export class PaymentService {
                     chave: this.configService.get('payment.pixKey'),
                     solicitacaoPagador: `Mensalidade de  ${effectiveDate}`,
                 })
-                this.logger.verbose({ sicoobPixData: JSON.stringify(sicoobPixData) })
 
                 try {
 
@@ -97,6 +96,7 @@ export class PaymentService {
                         pixExpiration
 
                     })
+                    this.logger.verbose({ sicoobPixData: JSON.stringify(sicoobPixData) })
 
                 } catch (error) {
                     this.logger.error({
@@ -109,10 +109,10 @@ export class PaymentService {
                     })
                 }
             }
-            skip += take
+
             // busca
-            listBill = await this.billService.getBillWithoutPixKey(take, skip)
-            await new Promise(resolve => setTimeout(resolve, 60000))
+            listBill = await this.billService.getBillWithoutPixKey(take)
+            await new Promise(resolve => setTimeout(resolve, 30000))
 
         } while (listBill.length)
         this.logger.verbose('end register bills')
