@@ -200,14 +200,26 @@ export class WhatsAppService {
             entry?.forEach(item => {
                 item.changes.forEach(change => {
                     change.value?.messages.forEach(msg => {
-                        const { from, text: { body } } = msg
+                        const { type, from } = msg
+                        let textMsg = null
+                        if (type === 'button') {
+                            const { button: { text } } = msg
+                            textMsg = text
+                        }
+                        if (type === 'text') {
+                            const { text: { body } } = msg
+                            textMsg = body
+
+                        }
                         this.logger.verbose({
                             action: 'whatsAppMsg',
                             from,
-                            body
+                            textMsg
 
                         })
-                        this.answerContact(from, body)
+                        if (from && textMsg) {
+                            this.answerContact(from, textMsg)
+                        }
                     })
                 })
             })

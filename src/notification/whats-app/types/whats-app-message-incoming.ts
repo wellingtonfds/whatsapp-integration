@@ -3,9 +3,13 @@ interface Message {
     id: string;
     timestamp: string;
     type: string;
-    text: {
+    text?: {
         body: string;
     };
+    button?: {
+        payload: string
+        text: string
+    }
 }
 
 interface Contact {
