@@ -52,12 +52,14 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
     }
 
     public async getBillWithPixKeyAndNotPayYet(take = 10, skip = 0): Promise<ContactWithBill[]> {
+        const gte = new Date()
         return this.bill.findMany({
             where: {
-                pixTaxId: { not: null },
+                pixQrCode: { not: null },
                 pixKey: { not: null },
+                dueDate: { gte },
                 pixCreatedAt: { not: null },
-                pixExpiration: { not: null },
+                pixExpiration: { gte },
                 paymentDate: null,
                 paymentValue: null,
             },

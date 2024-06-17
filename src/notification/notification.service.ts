@@ -88,7 +88,7 @@ export class NotificationService {
         const take = 10
         let skip = 0
 
-        let listBill = await this.billService.getBillWithPixKeyAndNotPayYet(take, skip)
+        let listBill = await this.billService.getBillWithPixKeyAndNotPayYet(take)
 
 
         do {
