@@ -98,6 +98,10 @@ export class NotificationController {
             return
         }
 
+        this.logger.verbose({
+            action: 'debugWhatsApp',
+            'request': JSON.stringify(req.body)
+        })
         await this.notificationService.webhookWhatAppHandleMessages(req.body)
         res.send('ok')
     }
