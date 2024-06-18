@@ -104,7 +104,7 @@ export class WhatsAppService {
             if (!bills.length) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
-                    text: 'nenhum cobrança encontrada'
+                    text: 'Você não tem débitos de mensalidade na tesouraria'
                 })
             }
             for (const bill of bills) {
@@ -121,9 +121,8 @@ export class WhatsAppService {
                 const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(bill.effectiveDate)
                 await this.sendMessage({
                     to: currentPhoneNumber,
-                    template: 'cobranca_mensalidade',
+                    template: 'mensalidade_aberto ',
                     parameters: [
-                        name,
                         effectiveDate,
                         (new Intl.NumberFormat('pt-BR').format(bill.value.toNumber())),
                         bill.pixQrCode
@@ -137,7 +136,14 @@ export class WhatsAppService {
         const defaultMessage = async () => {
             await this.sendMessage({
                 to: currentPhoneNumber,
-                template: 'mensagem_principal '
+                template: 'mensagem_principal'
+            })
+        }
+
+        const callCooperative = async () => {
+            await this.sendMessage({
+                to: currentPhoneNumber,
+                text: 'Você não tem débitos de mensalidade na cooperativa'
             })
         }
         const callTreasurer = async () => {
@@ -163,7 +169,8 @@ export class WhatsAppService {
         const commands = {
             'verdetalhesmensalidade': sentDetails,
             'mensalidade': sentBill,
-            'falarcomtesoureiro': callTreasurer
+            'falarcomtesoureiro': callTreasurer,
+            'cooperativa': callCooperative
 
         }
 

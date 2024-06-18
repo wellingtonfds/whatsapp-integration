@@ -12,7 +12,8 @@ async function bootstrap() {
     .setTitle('Tesouraria Digital')
     .setDescription('Integrações')
     .setVersion('1.0')
-    // .addServer('https://tesourariadigitaludv-production.up.railway.app')
+    .addServer('https://tesourariadigitaludv-production.up.railway.app')
+    .addServer('http://localhost:3000')
     .addApiKey({ type: 'apiKey', name: 'Api-Key', in: 'header' }, 'Api-Key')
     .build();
 
