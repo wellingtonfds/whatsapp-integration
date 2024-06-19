@@ -6,6 +6,7 @@ import { ContactService } from '../contact/contact.service';
 import { NotificationDto } from './dto/notification.dto';
 import { NotificationRepository } from './notification.repository';
 import { NotificationWithContact } from './types/notification-with-contact';
+import { WhatsAppSendMessage } from './whats-app/types/whats-app-send-message';
 import { WhatsAppService } from './whats-app/whats-app.service';
 
 @Injectable()
@@ -75,7 +76,7 @@ export class NotificationService {
 
     }
 
-    async sendNotificationsByContact(contactId: bigint) {
+    public async sendNotificationsByContact(contactId: bigint) {
         const notifications = await this.notificationRepository.getAllMessagesNotSentById(contactId)
         const [first] = notifications
         await this.sendNotification(first)
@@ -131,6 +132,11 @@ export class NotificationService {
 
     public async webhookWhatAppHandleMessages(body) {
         this.whatsAppService.webhookHandleMessages(body)
+    }
+
+    public async sendWhatsAppMessage(message: WhatsAppSendMessage) {
+        this.logger.verbose(`send msg to ${message.to}`)
+        this.whatsAppService.sendMessage(message)
     }
 
 }

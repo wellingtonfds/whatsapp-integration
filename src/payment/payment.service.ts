@@ -126,7 +126,7 @@ export class PaymentService {
             const { contact, ...bill } = await this.billService.getBillByTxId(txid)
             let mainContact = contact
             if (contact?.mainCrmId) {
-                mainContact = await this.contactService.findContactByUniqueKey(undefined, undefined, undefined, contact.mainCrmId)
+                mainContact = await this.contactService.findContactByUniqueKey(undefined, undefined, undefined, contact?.mainCrmId)
             }
             if (bill) {
 
@@ -136,13 +136,15 @@ export class PaymentService {
                     paymentDate: new Date(pix.horario),
 
                 })
-                this.notificationService.create({
-                    contactCpf: mainContact.CPF,
+
+                this.notificationService.sendWhatsAppMessage({
+                    to: mainContact.phoneNumber,
                     template: 'mensalidade_recebida',
                     parameters: [
                         mainContact.name,
                         (new Intl.NumberFormat('pt-BR').format(Number(pix.valor))),
                     ]
+
                 })
                 continue
             }

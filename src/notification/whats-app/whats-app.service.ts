@@ -16,8 +16,6 @@ export class WhatsAppService {
         private contactService: ContactService
     ) { }
 
-
-
     private parseNotificationTemplate(message: WhatsAppSendMessage) {
         const parameters = message?.parameters?.map(para => ({
             type: 'text',
@@ -194,7 +192,6 @@ export class WhatsAppService {
         }
 
     }
-
 
     public async webhookHandleMessages(whatsAppMessageIncomingBody: WhatsAppMessageIncomingBody) {
         const { entry, object } = whatsAppMessageIncomingBody
