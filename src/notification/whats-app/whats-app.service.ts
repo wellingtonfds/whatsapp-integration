@@ -40,6 +40,36 @@ export class WhatsAppService {
 
     private parseNotificationTextOnly(message: WhatsAppSendMessage) {
 
+
+        if ('buttons' in message) {
+
+            return {
+                messaging_product: "whatsapp",
+                recipient_type: "individual",
+                to: addNinthDigitOnPhoneNumber(message.to),
+                type: 'interactive',
+                interactive: {
+                    type: 'button',
+                    body: {
+                        text: message.text
+                    },
+                    footer: {
+                        text: 'Centro Espírita Beneficente União do Vegetal'
+                    },
+                    action: {
+                        buttons: message.buttons.map(({ id, title }) => ({
+                            type: "reply",
+                            reply: {
+                                id,
+                                title
+                            }
+                        }))
+                    }
+
+                }
+            }
+        }
+
         return {
             messaging_product: "whatsapp",
             recipient_type: "individual",
@@ -65,6 +95,7 @@ export class WhatsAppService {
     }
 
     public async sendMessage(message: WhatsAppSendMessage) {
+
         const config = {
             method: 'post',
             url: this.config.get<string>('whatsApp.url'),
@@ -118,9 +149,28 @@ export class WhatsAppService {
 
             for (const bill of bills) {
                 const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(bill.effectiveDate)
+                // await this.sendMessage({
+                //     to: currentPhoneNumber,
+                //     template: 'solicatacao_mensalidade ',
+                //     parameters: [
+                //         effectiveDate,
+                //         (new Intl.NumberFormat('pt-BR').format(bill.value.toNumber())),
+                //     ]
+
+                // })
                 await this.sendMessage({
                     to: currentPhoneNumber,
-                    text: `Segue o PIX da sua mensalidade de *${effectiveDate}*(mais possíveis acréscimos, atrasos e ou dependentes), no valor total de R$ ${(new Intl.NumberFormat('pt-BR').format(bill.value.toNumber()))}.\n\n${bill.pixQrCode}`
+                    text: `Segue o PIX da sua mensalidade de *${effectiveDate}*(mais possíveis acréscimos, atrasos e ou dependentes), no valor total de R$ ${(new Intl.NumberFormat('pt-BR').format(bill.value.toNumber()))}.`
+                })
+                await this.sendMessage({
+                    to: currentPhoneNumber,
+                    text: bill.pixQrCode,
+                    buttons: [
+                        {
+                            id: 'detalhes',
+                            title: 'Detalhes'
+                        }
+                    ]
                 })
             }
 
@@ -162,7 +212,7 @@ export class WhatsAppService {
             ])
         }
         const commands = {
-            'verdetalhesmensalidade': sentDetails,
+            'detalhes': sentDetails,
             'mensalidade': sentBill,
             'falarcomtesoureiro': callTreasurer,
             'cooperativa': callCooperative
