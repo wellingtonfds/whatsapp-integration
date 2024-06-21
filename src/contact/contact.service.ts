@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Contact, Prisma } from '@prisma/client';
+import { Bill, Contact, Prisma } from '@prisma/client';
 import { ContactRepository } from './contact.repository';
 import { ContactWithBill } from './types/contact-with-bill';
 
@@ -12,7 +12,7 @@ export class ContactService {
         return this.contactRepository.findByCPF(cpf)
     }
     public async findContactByPhoneNumber(phoneNumber: string, includeBill = false): Promise<ContactWithBill> {
-        return this.contactRepository.findContactByPhoneNumber(phoneNumber)
+        return this.contactRepository.findContactByPhoneNumber(phoneNumber, includeBill)
     }
     public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string, crmId: number): Promise<Contact> {
         return this.contactRepository.findContactByUniqueKey(cpf, email, phoneNumber, crmId)
@@ -35,5 +35,20 @@ export class ContactService {
         }
         return await this.contactRepository.create(data)
 
+    }
+
+    public async getBillsWithValideDueDateByPhoneNumber(findContactByPhoneNumber: string): Promise<Bill[]> {
+
+        const findContactWithBills = await this.findContactByPhoneNumber(findContactByPhoneNumber, true)
+        if (findContactWithBills) {
+            let bills = findContactWithBills?.bill ? [...findContactWithBills.bill] : []
+            if (findContactWithBills?.mainCrmId) {
+                const parent = await this.findContactByCrmIdWithBills(findContactWithBills?.mainCrmId)
+                const billParent = parent?.bill ? parent?.bill : []
+                bills = [...bills, ...billParent]
+            }
+            return bills
+        }
+        return []
     }
 }

@@ -87,23 +87,15 @@ export class WhatsAppService {
 
     public async answerContact(phoneNumber: string, message: string) {
         const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
-        const findContactWithBills = await this.contactService.findContactByPhoneNumber(currentPhoneNumber, true)
-
-        let bills = findContactWithBills?.bill ? [...findContactWithBills.bill] : []
-        if (findContactWithBills?.mainCrmId) {
-            const parent = await this.contactService.findContactByCrmIdWithBills(findContactWithBills?.mainCrmId)
-            const billParent = parent?.bill ? parent?.bill : []
-            bills = [...bills, ...billParent]
-        }
-
-        // const fin
+        const contact = await this.contactService.findContactByPhoneNumber(currentPhoneNumber, false)
         const sentDetails = async () => {
-
+            const bills = await this.contactService.getBillsWithValideDueDateByPhoneNumber(currentPhoneNumber)
             if (!bills.length) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
                     text: 'Você não tem débitos de mensalidade na tesouraria'
                 })
+                return
             }
             for (const bill of bills) {
                 await this.sendMessage({
@@ -114,17 +106,21 @@ export class WhatsAppService {
 
         }
         const sentBill = async () => {
-            const { name } = findContactWithBills
-            for (const bill of bills) {
-                const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(bill.effectiveDate)
+            const bills = await this.contactService.getBillsWithValideDueDateByPhoneNumber(currentPhoneNumber)
+
+            if (!bills?.length) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
-                    template: 'mensalidade_aberto ',
-                    parameters: [
-                        effectiveDate,
-                        (new Intl.NumberFormat('pt-BR').format(bill.value.toNumber())),
-                        bill.pixQrCode
-                    ]
+                    text: 'Você não tem débitos de mensalidade na tesouraria'
+                })
+                return
+            }
+
+            for (const bill of bills) {
+                const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(bill.effectiveDate)
+                await this.sendMessage({
+                    to: currentPhoneNumber,
+                    text: `Segue o PIX da sua mensalidade de *${effectiveDate}*(mais possíveis acréscimos, atrasos e ou dependentes), no valor total de R$ ${(new Intl.NumberFormat('pt-BR').format(bill.value.toNumber()))}.\n\n${bill.pixQrCode}`
                 })
             }
 
@@ -145,7 +141,8 @@ export class WhatsAppService {
             })
         }
         const callTreasurer = async () => {
-            const { name } = findContactWithBills
+
+            const { name } = contact
             Promise.all([
                 await this.sendMessage({
                     to: currentPhoneNumber,
@@ -173,7 +170,9 @@ export class WhatsAppService {
         }
 
         try {
-            if (findContactWithBills) {
+
+
+            if (contact) {
                 const command = message.replaceAll(' ', '').toLowerCase()
 
                 await commands[command]()
@@ -239,5 +238,7 @@ export class WhatsAppService {
         }
 
     }
+
+
 
 }

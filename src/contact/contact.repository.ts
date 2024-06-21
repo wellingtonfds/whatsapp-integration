@@ -33,19 +33,22 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
             where: {
                 phoneNumber: { equals: phoneNumber },
             },
-            include: {
-                bill: {
-                    where: {
-                        paymentDate: null,
-                        pixQrCode: {
-                            not: null
+            ...(includeBill && {
+                include: {
+                    bill: {
+                        where: {
+                            paymentDate: null,
+                            pixQrCode: {
+                                not: null
+                            },
+                            dueDate: {
+                                gte: new Date()
+                            }
                         },
-                        dueDate: {
-                            gte: new Date()
-                        }
                     }
                 }
-            }
+            })
+
         })
     }
     public async findContactByCrmIdWithBillsNotPay(crmId: number): Promise<ContactWithBill> {
