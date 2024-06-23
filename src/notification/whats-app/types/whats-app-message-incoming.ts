@@ -10,6 +10,14 @@ interface Message {
         payload: string
         text: string
     }
+    interactive?: {
+        type: "button_reply",
+        button_reply: {
+            id: string,
+            title: string
+        }
+    }
+
 }
 
 interface Contact {

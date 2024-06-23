@@ -53,9 +53,6 @@ export class WhatsAppService {
                     body: {
                         text: message.text
                     },
-                    footer: {
-                        text: 'Centro Espírita Beneficente União do Vegetal'
-                    },
                     action: {
                         buttons: message.buttons.map(({ id, title }) => ({
                             type: "reply",
@@ -263,6 +260,10 @@ export class WhatsAppService {
                         if (type === 'text') {
                             const { text: { body } } = msg
                             textMsg = body
+                        }
+                        if (type === 'interactive') {
+                            const { interactive: { button_reply: { id } } } = msg
+                            textMsg = id
 
                         }
                         this.logger.verbose({
