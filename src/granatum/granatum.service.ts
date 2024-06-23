@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { BillType } from '@prisma/client';
 import axios from 'axios';
 import { default as dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import { ContactService } from 'src/contact/contact.service';
 import { v4 as uuid4 } from "uuid";
 import { BillService } from '../bill/bill.service';
@@ -180,8 +181,94 @@ export class GranatumService {
         }
     }
 
-    async baixarCobraca(lancamentos: string[]) {
 
+
+    testeBaixarPagamentos() {
+        var lancamentos = "118164134-10920959, 118164135-10920959, 118164136-10920959, 118164152, 118164159";
+
+        this.baixarPagamentos(lancamentos);
+    }
+
+    baixarPagamentos(lancamentos) {
+        var lancamentosIds = lancamentos.split(',').map(function (id) {
+            return id.trim();
+        });
+
+
+
+        // Define a data de pagamento como a data atual no formato YYYY-MM-DD
+        const dataPagamento = DateTime.now().setZone("America/Sao_Paulo");
+
+        // Agrupar IDs por segundo número (se existir)
+        const lancamentosAgrupados = {};
+        const idsDiretos = [];
+
+        lancamentosIds.forEach(function (id) {
+            const parts = id.split('-');
+            if (parts.length === 2) {
+                var groupId = parts[1];
+                if (!lancamentosAgrupados[groupId]) {
+                    lancamentosAgrupados[groupId] = [];
+                }
+                lancamentosAgrupados[groupId].push(parts[0]);
+            } else {
+                // IDs sem hífen devem ser baixados diretamente
+                idsDiretos.push(id);
+            }
+        });
+
+        // Processar IDs diretos
+        idsDiretos.forEach(function (id) {
+            this.baixarLancamento(id, dataPagamento);
+        });
+
+        // Processar os grupos de IDs
+        for (var groupId in lancamentosAgrupados) {
+            if (lancamentosAgrupados.hasOwnProperty(groupId)) {
+                var group = lancamentosAgrupados[groupId];
+                var principalId = group[0];
+                var itensAdicionais = group.slice(1).map(function (id) {
+                    return { 'id': id };
+                });
+                if (itensAdicionais.length > 0) {
+                    this.baixarLancamento(principalId, dataPagamento, itensAdicionais);
+                } else {
+                    this.baixarLancamento(principalId, dataPagamento);
+                }
+            }
+        }
+
+    }
+    baixarLancamento(lancamentoId, dataPagamento, itensAdicionais = []) {
+        var formData = [];
+
+        formData.push(encodeURIComponent('data_pagamento') + "=" + encodeURIComponent(dataPagamento));
+
+        if (itensAdicionais.length > 0) {
+            itensAdicionais.forEach(function (item) {
+                formData.push(encodeURIComponent('itens_adicionais[][id]') + "=" + encodeURIComponent(item.id));
+            });
+        }
+
+        //this.logs.push({ lancamentoId: lancamentoId, payload: payload }); // Adicionado para fins de teste
+        return this.fetchFromAPI(lancamentoId, formData);
+    }
+    async fetchFromAPI(lancamentoId, formData) {
+
+
+        const response = await axios.put<Lancamento[]>(`${this.apiUrl}lancamentos/${lancamentoId}?access_token=${this.token}`, formData, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+
+
+        try {
+            return response.data
+        } catch (e) {
+            console.log(e)
+            return null;
+        }
     }
 
 
