@@ -26,7 +26,7 @@ COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY ./private_key.pem ./
 COPY ./public_key.pem ./
 COPY ./policy.html ./
-COPY ./policy-ecc.html ./
+COPY ./policy-eec.html ./
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Install dependencies
