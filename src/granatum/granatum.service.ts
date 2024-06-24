@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BillType } from '@prisma/client';
 import axios from 'axios';
@@ -18,6 +18,7 @@ import LancamentoTipo from './types/lancamentoTipo';
 @Injectable()
 export class GranatumService {
 
+    private readonly logger: Logger = new Logger(GranatumService.name);
     private apiUrl: string
     private token: string
     constructor(
@@ -198,7 +199,7 @@ export class GranatumService {
 
         // Define a data de pagamento como a data atual no formato YYYY-MM-DD
         const dateNow = DateTime.now().setZone("America/Sao_Paulo");
-        const dataPagamento = dateNow.toString()
+        const dataPagamento = dateNow.toFormat('yyyy-MM-dd')
 
         // Agrupar IDs por segundo número (se existir)
         const lancamentosAgrupados = {};
@@ -243,11 +244,11 @@ export class GranatumService {
     async baixarLancamento(lancamentoId, dataPagamento, itensAdicionais = []) {
         var formData = [];
 
-        formData.push(encodeURIComponent('data_pagamento') + "=" + encodeURIComponent(dataPagamento));
+        formData.push('data_pagamento' + "=" + dataPagamento);
 
         if (itensAdicionais.length > 0) {
             itensAdicionais.forEach(function (item) {
-                formData.push(encodeURIComponent('itens_adicionais[][id]') + "=" + encodeURIComponent(item.id));
+                formData.push('itens_adicionais[][id]' + "=" + item.id);
             });
         }
 
@@ -256,19 +257,25 @@ export class GranatumService {
     }
     async fetchFromAPI(lancamentoId, formData) {
 
-
+        const config = {
+            method: 'put',
+            maxBodyLength: Infinity,
+            url: `${this.apiUrl}lancamentos/${lancamentoId}?access_token=${this.token}`,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            data: formData.join('&')
+        };
 
 
         try {
-            const response = await axios.put<Lancamento[]>(`${this.apiUrl}lancamentos/${lancamentoId}?access_token=${this.token}`, formData, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            })
-
+            const response = await axios(config)
             return response.data
-        } catch (e) {
-            console.log(e)
+        } catch (error) {
+            this.logger.error({
+                action: 'atualizar lançamento granatum',
+                error
+            })
             return null;
         }
     }

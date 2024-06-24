@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BillService } from '../bill/bill.service';
 import { ContactService } from '../contact/contact.service';
+import { GranatumService } from '../granatum/granatum.service';
 import { NotificationService } from '../notification/notification.service';
 import { SicoobService } from './sicoob/sicoob.service';
 import { ResponseWebhook } from './sicoob/types/response-webhook';
@@ -16,7 +17,8 @@ export class PaymentService {
         private sicoobService: SicoobService,
         private configService: ConfigService,
         private contactService: ContactService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private granatumService: GranatumService
     ) { }
 
     //@Cron(CronExpression.EVERY_30_SECONDS)
@@ -129,14 +131,16 @@ export class PaymentService {
                 mainContact = await this.contactService.findContactByUniqueKey(undefined, undefined, undefined, contact?.mainCrmId)
             }
             if (bill) {
-
+                this.logger.verbose(`try down payment ${bill.paymentIdList}`)
+                await this.granatumService.baixarPagamentos(bill.paymentIdList)
+                this.logger.verbose(`try update bill on database ${bill.id}`)
                 await this.billService.update({
                     ...bill,
                     paymentValue: Number(pix.valor),
                     paymentDate: new Date(pix.horario),
 
                 })
-
+                this.logger.verbose(`send payment confirmation for ${bill.id}`)
                 this.notificationService.sendWhatsAppMessage({
                     to: mainContact.phoneNumber,
                     template: 'mensalidade_recebida',

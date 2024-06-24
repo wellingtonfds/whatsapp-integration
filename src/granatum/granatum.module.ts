@@ -8,6 +8,7 @@ import { GranatumService } from './granatum.service';
 @Module({
   imports: [ConfigModule, BillModule, ContactModule],
   providers: [GranatumService],
-  controllers: [GranatumController]
+  controllers: [GranatumController],
+  exports: [GranatumService]
 })
 export class GranatumModule { }
