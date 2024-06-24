@@ -183,13 +183,13 @@ export class GranatumService {
 
 
 
-    testeBaixarPagamentos() {
+    async testeBaixarPagamentos() {
         var lancamentos = "118164134-10920959, 118164135-10920959, 118164136-10920959, 118164152, 118164159";
 
         this.baixarPagamentos(lancamentos);
     }
 
-    baixarPagamentos(lancamentos) {
+    async baixarPagamentos(lancamentos) {
         var lancamentosIds = lancamentos.split(',').map(function (id) {
             return id.trim();
         });
@@ -197,7 +197,8 @@ export class GranatumService {
 
 
         // Define a data de pagamento como a data atual no formato YYYY-MM-DD
-        const dataPagamento = DateTime.now().setZone("America/Sao_Paulo");
+        const dateNow = DateTime.now().setZone("America/Sao_Paulo");
+        const dataPagamento = dateNow.toString()
 
         // Agrupar IDs por segundo número (se existir)
         const lancamentosAgrupados = {};
@@ -218,9 +219,9 @@ export class GranatumService {
         });
 
         // Processar IDs diretos
-        idsDiretos.forEach(function (id) {
-            this.baixarLancamento(id, dataPagamento);
-        });
+        for (const id of idsDiretos) {
+            await this.baixarLancamento(id, dataPagamento);
+        }
 
         // Processar os grupos de IDs
         for (var groupId in lancamentosAgrupados) {
@@ -239,7 +240,7 @@ export class GranatumService {
         }
 
     }
-    baixarLancamento(lancamentoId, dataPagamento, itensAdicionais = []) {
+    async baixarLancamento(lancamentoId, dataPagamento, itensAdicionais = []) {
         var formData = [];
 
         formData.push(encodeURIComponent('data_pagamento') + "=" + encodeURIComponent(dataPagamento));
@@ -251,19 +252,20 @@ export class GranatumService {
         }
 
         //this.logs.push({ lancamentoId: lancamentoId, payload: payload }); // Adicionado para fins de teste
-        return this.fetchFromAPI(lancamentoId, formData);
+        return await this.fetchFromAPI(lancamentoId, formData);
     }
     async fetchFromAPI(lancamentoId, formData) {
 
 
-        const response = await axios.put<Lancamento[]>(`${this.apiUrl}lancamentos/${lancamentoId}?access_token=${this.token}`, formData, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
 
 
         try {
+            const response = await axios.put<Lancamento[]>(`${this.apiUrl}lancamentos/${lancamentoId}?access_token=${this.token}`, formData, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+
             return response.data
         } catch (e) {
             console.log(e)
