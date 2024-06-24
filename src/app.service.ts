@@ -7,7 +7,7 @@ export class AppService {
     return fs.readFileSync('./policy.html', 'utf-8')
   }
 
-  getPolicyEcc(): string {
-    return fs.readFileSync('./policy-ecc.html', 'utf-8')
+  getPolicyEec(): string {
+    return fs.readFileSync('./policy-eec.html', 'utf-8')
   }
 }

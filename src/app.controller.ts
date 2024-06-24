@@ -10,8 +10,8 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('ecc')
-  getPolicyEcc(): string {
-    return this.appService.getHello();
+  @Get('eec')
+  getPolicyEec(): string {
+    return this.appService.getPolicyEec()
   }
 }
