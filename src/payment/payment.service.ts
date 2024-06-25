@@ -125,7 +125,12 @@ export class PaymentService {
         this.logger.verbose(pixList)
         for (const pix of pixList) {
             const { txid } = pix
-            const { contact, ...bill } = await this.billService.getBillByTxId(txid)
+            const billData = await this.billService.getBillByTxId(txid)
+            if (!billData) {
+                this.logger.verbose(`taxId not found ${txid}`)
+                return
+            }
+            const { contact, ...bill } = billData
             let mainContact = contact
             if (contact?.mainCrmId) {
                 mainContact = await this.contactService.findContactByUniqueKey(undefined, undefined, undefined, contact?.mainCrmId)
