@@ -31,8 +31,8 @@ enum NotificationType {
 }
 
 enum BillType {
-  MonthlyFee
-  MembershipFee
+  Cooperativa
+  Mensalidade
 }
 
 model Bill {
@@ -48,7 +48,7 @@ model Bill {
   pixTaxId         String
   pixKey           String?
   pixQrCode        String?
-  type             BillType @default(MembershipFee)
+  type             BillType @default(Mensalidade)
   pixCreatedAt     DateTime?
   paymentValue     Decimal?
   pixExpiration    DateTime?
@@ -75,4 +75,5 @@ model Contact {
   bill         Bill[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  status         String?
 }

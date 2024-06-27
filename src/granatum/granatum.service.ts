@@ -13,6 +13,7 @@ import { Cliente } from './types/iCliente';
 import { Lancamento } from './types/iLancamento';
 import { Socio } from './types/iSocio';
 import LancamentoTipo from './types/lancamentoTipo';
+import ClienteTipo from './types/clienteTipo';
 
 
 @Injectable()
@@ -61,7 +62,6 @@ export class GranatumService {
             socios.map(socio => {
                 if (!socio.principal && !socio.socioPaiId) {
                     socio.status = 'Contato dependente não encontrou o contato principal'
-
                 }
                 return socio
             });
@@ -77,12 +77,13 @@ export class GranatumService {
                     state: socio.uf,
                     city: socio.cidade,
                     postalCode: socio.cep,
-                    phoneNumber: socio.telefoneEnvio
+                    phoneNumber: socio.telefoneEnvio,
+                    status: socio.status
                 }
                 if (socio.valorTotal > 0) {
                     this.billService.create({
                         clientData,
-                        type: BillType.MembershipFee,
+                        type: BillType.Mensalidade,
                         value: socio.valorTotal,
                         paymentIdList: socio.idsLancamentos.join(','),
                         pixTaxId: uuid4().replaceAll('-', ''),
@@ -109,13 +110,17 @@ export class GranatumService {
             const response = await axios.get<Cliente[]>(`${this.apiUrl}clientes`, {
                 params: { access_token: this.token }
             });
-            return response.data;
+            
+            // Filtrar clientes com classificacao_cliente_id = 1
+            const clientesFiltrados = response.data.filter(cliente => cliente.classificacao_cliente_id === ClienteTipo.SocioUDV);
+            
+            return clientesFiltrados;
         } catch (error: any) {
-            // Acho que não é bom tratar este erro e retornar array vazio, não seria melhor disparar outro erro mostrando que deu problemas acessando clientes ?
+            // Tratar o erro adequadamente e disparar um novo erro
             if (error.response && error.response.status === 401) {
                 // Tentativa de obter um novo token e repetir a requisição
-                //await this.obterNovoToken();
-                //return this.getClientes();
+                // await this.obterNovoToken();
+                // return this.getClientes();
                 return [];
             } else {
                 throw error;

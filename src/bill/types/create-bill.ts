@@ -11,6 +11,7 @@ export interface CreateBill {
         city: string
         postalCode: string
         phoneNumber: string
+        status?:string
     }
     type?: BillType
     value: number

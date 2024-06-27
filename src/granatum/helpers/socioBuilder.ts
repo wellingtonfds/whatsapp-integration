@@ -25,8 +25,7 @@ class SocioBuilder {
             uf: '',
             socioPaiId: null,
             dataVencimento: '',
-            dataCompetencia: '',
-            status: ''
+            dataCompetencia: ''
         }
 
         this.valoresDetalhados = new Map()
@@ -122,7 +121,7 @@ class SocioBuilder {
 
     private obterTelefoneDoCampoTelefone(cliente: Cliente): string {
         let telefone = '';
-        const telefoneCadastro = cliente.telefone.replace(/-/g, '');
+        const telefoneCadastro = cliente.telefone.replace(/\D/g, '');
         if (telefoneCadastro && telefoneCadastro.length >= 8 && !isNaN(parseInt(telefoneCadastro, 10))) {
             telefone = `55${telefoneCadastro}`
         }

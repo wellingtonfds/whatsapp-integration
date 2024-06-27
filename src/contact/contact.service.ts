@@ -25,7 +25,7 @@ export class ContactService {
     public async createOrUpdate(data: Prisma.ContactCreateInput): Promise<Contact> {
 
         const { phoneNumber, CPF, email, crmId } = data
-        const exists = await this.findContactByUniqueKey(CPF, email, phoneNumber, crmId)
+        const exists = await this.findContactByUniqueKey(null, null, null, crmId)
         if (exists) {
             const response = await this.contactRepository.update(exists.id, {
                 ...exists,

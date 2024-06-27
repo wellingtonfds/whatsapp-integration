@@ -17,5 +17,5 @@ export interface Socio {
     socioPaiId: number
     dataVencimento: string
     dataCompetencia: string
-    status: string
+    status?: string
 }

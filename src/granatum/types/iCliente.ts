@@ -14,7 +14,7 @@ export interface Cliente {
         sigla: string
     }
     cep: string
-
+    classificacao_cliente_id?: number
 
 
 }
