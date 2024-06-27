@@ -24,7 +24,7 @@ export class PaymentService {
     //@Cron(CronExpression.EVERY_30_SECONDS)
     public async registerPixKeys() {
         this.logger.verbose('start register bills')
-        const dueDateDays = 10
+        const dueDateDays = 30
         const take = 10
 
 
