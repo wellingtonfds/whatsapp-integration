@@ -146,15 +146,6 @@ export class WhatsAppService {
 
             for (const bill of bills) {
                 const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(bill.effectiveDate)
-                // await this.sendMessage({
-                //     to: currentPhoneNumber,
-                //     template: 'solicatacao_mensalidade ',
-                //     parameters: [
-                //         effectiveDate,
-                //         (new Intl.NumberFormat('pt-BR').format(bill.value.toNumber())),
-                //     ]
-
-                // })
                 await this.sendMessage({
                     to: currentPhoneNumber,
                     text: `Segue o PIX da sua mensalidade de *${effectiveDate}*(mais possíveis acréscimos, atrasos e ou dependentes), no valor total de R$ ${(new Intl.NumberFormat('pt-BR').format(bill.value.toNumber()))}.`
@@ -177,7 +168,21 @@ export class WhatsAppService {
         const defaultMessage = async () => {
             await this.sendMessage({
                 to: currentPhoneNumber,
-                template: 'mensagem_principal'
+                text: `Atendimento da Tesouraria do NRS\n\nOlá ${contact.name},\nVisando atender de forma eficiente e rápida, este sistema fornece informações aos sócios.Você pode verificar débitos de mensalidade e da cooperativa. Se precisar falar com o Tesoureiro, selecione a opção correspondente.`,
+                buttons: [
+                    {
+                        id: 'mensalidade',
+                        title: 'Mensalidade'
+                    },
+                    {
+                        id: 'cooperativa',
+                        title: 'Cooperativa'
+                    },
+                    {
+                        id: 'tesoureiro',
+                        title: 'Tesoureiro'
+                    }
+                ]
             })
         }
 
@@ -208,6 +213,8 @@ export class WhatsAppService {
                 })
             ])
         }
+
+
         const commands = {
             'detalhes': sentDetails,
             'mensalidade': sentBill,
@@ -217,8 +224,6 @@ export class WhatsAppService {
         }
 
         try {
-
-
             if (contact) {
                 const command = message.replaceAll(' ', '').toLowerCase()
 
@@ -229,11 +234,7 @@ export class WhatsAppService {
                 to: currentPhoneNumber,
                 template: 'telefone_nao_cadastrado'
             })
-
-
-
         } catch (e) {
-
             defaultMessage()
         }
 
