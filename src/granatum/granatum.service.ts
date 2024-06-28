@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BillType } from '@prisma/client';
+import { BillStatusType, BillType } from '@prisma/client';
 import axios from 'axios';
 import { default as dayjs } from 'dayjs';
 import { DateTime } from 'luxon';
@@ -89,7 +89,8 @@ export class GranatumService {
                         pixTaxId: uuid4().replaceAll('-', ''),
                         description: socio.mensagem,
                         dueDate: new Date(socio.dataVencimento),
-                        effectiveDate: new Date(socio.dataCompetencia)
+                        effectiveDate: new Date(socio.dataCompetencia),
+                        status: BillStatusType.Pendente
                     });
                     continue
                 }
