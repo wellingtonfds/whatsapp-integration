@@ -61,7 +61,19 @@ export class WhatsAppService {
                                 title
                             }
                         }))
-                    }
+                    },
+                    ...(message.footer && {
+                        footer: {
+                            text: message.footer
+                        }
+                    }),
+                    ...(message.header && {
+                        header: {
+                            type: "text",
+                            text: message.header
+                        }
+                    }),
+
 
                 }
             }
@@ -168,7 +180,7 @@ export class WhatsAppService {
         const defaultMessage = async () => {
             await this.sendMessage({
                 to: currentPhoneNumber,
-                text: `Atendimento da Tesouraria do NRS\n\nOlá ${contact.name},\nVisando atender de forma eficiente e rápida, este sistema fornece informações aos sócios.Você pode verificar débitos de mensalidade e da cooperativa. Se precisar falar com o Tesoureiro, selecione a opção correspondente.`,
+                text: `Olá ${contact.name},\n\nVisando atender de forma eficiente e rápida, este sistema fornece informações aos sócios.Você pode verificar débitos de mensalidade e da cooperativa. Se precisar falar com o Tesoureiro, selecione a opção correspondente.`,
                 buttons: [
                     {
                         id: 'mensalidade',
@@ -182,7 +194,9 @@ export class WhatsAppService {
                         id: 'tesoureiro',
                         title: 'Tesoureiro'
                     }
-                ]
+                ],
+                footer: 'Centro Espírita Beneficente União do Vegetal',
+                header: 'Atendimento da Tesouraria do NRS'
             })
         }
 

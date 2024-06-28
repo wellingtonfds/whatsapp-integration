@@ -10,4 +10,6 @@ export interface WhatsAppSendMessage {
     parameters?: string[]
     text?: string
     buttons?: WhatsAppButtons[]
+    footer?: string
+    header?: string
 }
