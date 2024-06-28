@@ -35,6 +35,12 @@ enum BillType {
   Mensalidade
 }
 
+enum BillStatusType {
+  Pendente
+  Cancelado
+  Pago
+}
+
 model Bill {
   id               BigInt          @id @default(autoincrement())
   value            Decimal
@@ -57,6 +63,7 @@ model Bill {
   contactId        BigInt
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  status           BillStatusType  @default(Pendente)
 }
 
 model Contact {

@@ -1,4 +1,5 @@
 import { BillType } from "@prisma/client"
+import { BillStatusType } from "@prisma/client"
 
 export interface CreateBill {
     clientData: {
@@ -20,4 +21,5 @@ export interface CreateBill {
     description?: string
     dueDate: Date
     effectiveDate: Date
+    status?: BillStatusType
 }
