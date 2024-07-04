@@ -10,20 +10,16 @@ import { CreateBill } from './types/create-bill';
 export class BillService {
     constructor(private billRepository: BillRepository, private contactService: ContactService) { }
 
-    public async create({ clientData, ...bill }: CreateBill) {
+    public async create({contactId, ...bill} : CreateBill) : Promise<Bill> {
 
-        const contact = await this.contactService.createOrUpdate(clientData)
-        if (contact) {
-            this.billRepository.create({
-                ...bill,
-                contact: {
-                    connect: {
-                        id: contact.id,
-                    }
+        return this.billRepository.create({
+            ...bill,
+            contact: {
+                connect: {
+                    id: contactId,
                 }
-            })
-        }
-        // return this.billRepository.create(createData)
+            }
+        })
     }
 
     public async getBillWithoutPixKey(take = 10, skip = 0): Promise<ContactWithBill[]> {

@@ -31,11 +31,11 @@ export class GranatumService {
         this.token = this.config.get<string>('granatum.token')
     }
 
-    async getSocios(): Promise<Socio[]> {
+    async getSocios(billType: BillType): Promise<Socio[]> {
         try {
             const clientes = await this.getClientes();
             const tipos = [LancamentoTipo.Receber, LancamentoTipo.ReceberAtrasados];
-            const lancamentos = await this.getLancamentos(tipos);
+            const lancamentos = await this.getLancamentos(tipos, billType);
 
             const telefoneToSocioMap = new Map<string, Socio>();
 
@@ -80,10 +80,13 @@ export class GranatumService {
                     phoneNumber: socio.telefoneEnvio,
                     status: socio.status
                 }
-                if (socio.valorTotal > 0) {
-                    this.billService.create({
-                        clientData,
-                        type: BillType.Mensalidade,
+
+                const contact = await this.contactService.createOrUpdate(clientData)
+
+                if (contact && socio.valorTotal > 0) {
+                    await this.billService.create({
+                        contactId: contact.id,
+                        type: billType,
                         value: socio.valorTotal,
                         paymentIdList: socio.idsLancamentos.join(','),
                         pixTaxId: uuid4().replaceAll('-', ''),
@@ -92,9 +95,7 @@ export class GranatumService {
                         effectiveDate: new Date(socio.dataCompetencia),
                         status: BillStatusType.Pendente
                     });
-                    continue
                 }
-                await this.contactService.createOrUpdate(clientData)
 
             }
 
@@ -129,8 +130,9 @@ export class GranatumService {
         }
     }
 
-    async getLancamentos(tipos: string[]): Promise<Lancamento[]> {
-        const contas = [ContaTipo.FluxoDeCaixa, ContaTipo.Caixa];
+    async getLancamentos(tipos: string[], billType: BillType): Promise<Lancamento[]> {
+      
+        const contas = billType === BillType.Mensalidade ? [ContaTipo.FluxoDeCaixa, ContaTipo.Caixa] : [ContaTipo.Cooperativa];
 
         const dataAtual = dayjs()
         const dataInicial = dataAtual.clone().subtract(6, 'months').startOf('month').format('YYYY-MM-DD')
