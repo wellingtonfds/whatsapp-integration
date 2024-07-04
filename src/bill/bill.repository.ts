@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Bill, Prisma, PrismaClient } from "@prisma/client";
-import { ContactWithBill } from "./types/bill-with-contactl";
 
+import { ContactWithBill } from "./types/bill-with-contactl";
 
 @Injectable()
 export class BillRepository extends PrismaClient implements OnModuleInit {
@@ -138,7 +138,4 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
         })
 
     }
-
-
-
 }

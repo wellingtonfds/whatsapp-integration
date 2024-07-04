@@ -70,7 +70,7 @@ export class SicoobService {
 
     }
 
-    private async sendRequest<r>(uri: string, method: 'post' | 'get' | 'put', data: string | object): Promise<r> {
+    private async sendRequest<r>(uri: string, method: 'post' | 'get' | 'put' | 'patch', data: string | object): Promise<r> {
         const url = this.config.get('sicoob.apiUrl') + uri
         const { Authorization, client_id } = await this.getToken()
         const config = await this.exportBaseAxiosConfig({
@@ -99,6 +99,14 @@ export class SicoobService {
     }
     public async registerPix({ txid, ...payment }: RegisterBill): Promise<ResponseRegisterBill> {
         const response = await this.sendRequest<Promise<ResponseRegisterBill>>(`/pix/api/v2/cobv/${txid}`, 'put', payment)
+        return response
+    }
+
+    public async cancelPix(txid: string): Promise<ResponseRegisterBill> {
+        const response = await this.sendRequest<Promise<ResponseRegisterBill>>(`/pix/api/v2/cobv/${txid}`, 'put', {
+            status: 'REMOVIDA_PELO_USUARIO_RECEBEDOR'
+        })
+
         return response
     }
 

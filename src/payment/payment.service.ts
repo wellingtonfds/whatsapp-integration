@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Bill } from '@prisma/client';
 import { BillService } from '../bill/bill.service';
 import { ContactService } from '../contact/contact.service';
 import { GranatumService } from '../granatum/granatum.service';
@@ -119,6 +120,11 @@ export class PaymentService {
         } while (listBill.length)
         this.logger.verbose('end register bills')
 
+    }
+
+    public async cancelPixCode(bill: Bill): Promise<void> {
+        await this.sicoobService.cancelPix(bill.pixTaxId)
+        await this.billService.clearPixData(bill)
     }
 
     public async handleWebhook({ pix: pixList }: ResponseWebhook) {

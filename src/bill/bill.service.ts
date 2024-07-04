@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Bill, Prisma } from '@prisma/client';
-import { ContactService } from '../contact/contact.service';
+import { SicoobService } from 'src/payment/sicoob/sicoob.service';
+import { v4 as uuid4 } from "uuid";
 import { BillRepository } from './bill.repository';
 import { ContactWithBill } from './types/bill-with-contactl';
 import { CreateBill } from './types/create-bill';
 
-
 @Injectable()
 export class BillService {
-    constructor(private billRepository: BillRepository, private contactService: ContactService) { }
+    constructor(
+        private billRepository: BillRepository,
+        private sicoobService: SicoobService
+    ) { }
 
     public async create({ contactId, ...bill }: CreateBill): Promise<Bill> {
 
@@ -17,14 +20,13 @@ export class BillService {
 
         for (const old of oldBill) {
 
-            // cancelar pix no sicoob
-
-
+            await this.sicoobService.cancelPix(old.pixTaxId)
             // cancelar a cobrança 
             await this.billRepository.update({
                 ...old,
                 status: 'Cancelado'
             })
+
         }
 
         const [hasBill] = billList.filter(item => item.paymentIdList === bill.paymentIdList && item.type === bill.type)
@@ -73,7 +75,6 @@ export class BillService {
             total: billListProcessed.length,
             bills: billListProcessed
         }
-
     }
 
     public async getBillWithContactByPhoneNumber(phoneNumber: string) {
@@ -85,6 +86,18 @@ export class BillService {
     }
     public async update(bill: Prisma.BillUpdateInput): Promise<Bill> {
         return this.billRepository.update(bill)
+    }
+
+    public async clearPixData(bill: Bill): Promise<void> {
+
+        await this.billRepository.update({
+            ...bill,
+            pixKey: null,
+            pixCreatedAt: null,
+            pixQrCode: null,
+            pixTaxId: uuid4().replaceAll('-', ''),
+            pixExpiration: null,
+        })
     }
 
 }
