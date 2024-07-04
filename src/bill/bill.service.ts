@@ -10,7 +10,28 @@ import { CreateBill } from './types/create-bill';
 export class BillService {
     constructor(private billRepository: BillRepository, private contactService: ContactService) { }
 
-    public async create({contactId, ...bill} : CreateBill) : Promise<Bill> {
+    public async create({ contactId, ...bill }: CreateBill): Promise<Bill> {
+
+        const billList = await this.billRepository.getBillWithoutPay(contactId)
+        const oldBill = billList.filter(item => item.paymentIdList !== bill.paymentIdList && item.type === bill.type)
+
+        for (const old of oldBill) {
+
+            // cancelar pix no sicoob
+
+
+            // cancelar a cobrança 
+            await this.billRepository.update({
+                ...old,
+                status: 'Cancelado'
+            })
+        }
+
+        const [hasBill] = billList.filter(item => item.paymentIdList === bill.paymentIdList && item.type === bill.type)
+
+        if (hasBill) {
+            return hasBill
+        }
 
         return this.billRepository.create({
             ...bill,

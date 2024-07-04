@@ -51,6 +51,18 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
         })
     }
 
+    public async getBillWithoutPay(contactId: bigint | number): Promise<Bill[]> {
+        return this.bill.findMany({
+            where: {
+                paymentDate: null,
+                paymentValue: null,
+                status: "Pendente",
+                contactId
+            }
+        })
+    }
+
+
     public async getBillWithPixKeyAndNotPayYet(take = 10, skip = 0): Promise<ContactWithBill[]> {
         const gte = new Date()
         return this.bill.findMany({
@@ -68,7 +80,6 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
             include: {
                 contact: true
             }
-
         })
     }
 
