@@ -31,7 +31,7 @@ export class GranatumService {
         this.token = this.config.get<string>('granatum.token')
     }
 
-    async getSocios(billType: BillType): Promise<Socio[]> {
+    async criarCobrancas(billType: BillType): Promise<Socio[]> {
         try {
             const clientes = await this.getClientes();
             const tipos = [LancamentoTipo.Receber, LancamentoTipo.ReceberAtrasados];
@@ -66,6 +66,7 @@ export class GranatumService {
                 return socio
             });
 
+            const contacts = [];
             // Criação dos registros de cobrança para sócios principais
             for (const socio of socios) {
                 const clientData = {
@@ -82,24 +83,48 @@ export class GranatumService {
                 }
 
                 const contact = await this.contactService.createOrUpdate(clientData)
-
-                if (contact && socio.valorTotal > 0) {
-                    await this.billService.create({
-                        contactId: contact.id,
-                        type: billType,
-                        value: socio.valorTotal,
-                        paymentIdList: socio.idsLancamentos.join(','),
-                        pixTaxId: uuid4().replaceAll('-', ''),
-                        description: socio.mensagem,
-                        dueDate: new Date(socio.dataVencimento),
-                        effectiveDate: new Date(socio.dataCompetencia),
-                        status: BillStatusType.Pendente
-                    });
+                if (contact) {
+                    if (contact) {
+                        contacts.push({
+                            ...contact,
+                            valorTotal: socio.valorTotal
+                        });
+                    }
                 }
+            }   
+          
+            for (const contact of contacts) {
+                if (contact.valorTotal > 0) {
+                    let valuePayment = contact.valorTotal;
+                    
+                    // Filtra e soma os valores dos dependentes
+                    if (contact.mainCrmId === null) {
+                        for (const dependent of contacts) {
+                            if (dependent.mainCrmId === contact.crmId) {
+                                valuePayment += dependent.valorTotal;
+                            }
+                        }
+                    } else {
+                        valuePayment = 0;
+                    }
 
+                    let socio = socios.find(socio => socio.id === contact.crmId)
+                    if (socio.valorTotal > 0 || valuePayment > 0) {
+                        await this.billService.create({
+                            contactId: contact.id,
+                            type: billType,
+                            value: socio.valorTotal,
+                            valuePayment: valuePayment,
+                            paymentIdList: socio.idsLancamentos.join(','),
+                            pixTaxId: uuid4().replaceAll('-', ''),
+                            description: socio.mensagem,
+                            dueDate: new Date(socio.dataVencimento),
+                            effectiveDate: new Date(socio.dataCompetencia),
+                            status: BillStatusType.Pendente
+                        });
+                    }
+                }
             }
-
-
             return socios;
         } catch (error: any) {
             console.error('Erro ao processar sócios:', error.message);

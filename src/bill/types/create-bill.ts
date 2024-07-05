@@ -5,6 +5,7 @@ export interface CreateBill {
     contactId: bigint | number
     type?: BillType
     value: number
+    valuePayment: number
     paymentIdList: string
     pixTaxId: string
     description?: string

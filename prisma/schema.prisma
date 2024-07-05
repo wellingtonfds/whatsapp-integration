@@ -44,6 +44,7 @@ enum BillStatusType {
 model Bill {
   id               BigInt          @id @default(autoincrement())
   value            Decimal
+  valuePayment     Decimal @default(0)
   paymentIdList    String
   //Competência
   effectiveDate    DateTime

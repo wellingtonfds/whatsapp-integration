@@ -13,7 +13,7 @@ export class GranatumController {
     @ApiSecurity('Api-Key')
     @Get('mensalidade')
     public async criarCobrancasMensalidade() {
-        const socios = await this.granatumService.getSocios(BillType.Mensalidade)
+        const socios = await this.granatumService.criarCobrancas(BillType.Mensalidade)
         return socios
     }
 
@@ -21,7 +21,7 @@ export class GranatumController {
     @ApiSecurity('Api-Key')
     @Get('cooperativa')
     public async criarCobrancasCooperativa() {
-        const socios = await this.granatumService.getSocios(BillType.Cooperativa)
+        const socios = await this.granatumService.criarCobrancas(BillType.Cooperativa)
         return socios
     }
 
