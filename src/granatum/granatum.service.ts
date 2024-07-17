@@ -109,7 +109,7 @@ export class GranatumService {
                     }
 
                     let socio = socios.find(socio => socio.id === contact.crmId)
-                    if (socio.valorTotal > 0 || valuePayment > 0) {
+                    if (socio.valorTotal > 0) {
                         await this.billService.create({
                             contactId: contact.id,
                             type: billType,
