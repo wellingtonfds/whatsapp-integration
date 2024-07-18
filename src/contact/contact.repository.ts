@@ -37,10 +37,7 @@ export class ContactRepository extends PrismaClient implements OnModuleInit {
                 include: {
                     bill: {
                         where: {
-                            paymentDate: null,
-                            pixQrCode: {
-                                not: null
-                            },
+                            status: 'Pendente',
                             dueDate: {
                                 gte: new Date()
                             }

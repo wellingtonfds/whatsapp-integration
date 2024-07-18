@@ -1,6 +1,8 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { BillType } from '@prisma/client';
 import axios, { HttpStatusCode } from 'axios';
+import { BillService } from 'src/bill/bill.service';
 import { ContactService } from 'src/contact/contact.service';
 import addNinthDigitOnPhoneNumber from '../../helper/add-ninth-digit-on-phone-number';
 import { WhatsAppMessageIncomingBody } from './types/whats-app-message-incoming';
@@ -13,7 +15,8 @@ export class WhatsAppService {
 
     constructor(
         private config: ConfigService,
-        private contactService: ContactService
+        private contactService: ContactService,
+        private billService: BillService,
     ) { }
 
     private parseNotificationTemplate(message: WhatsAppSendMessage) {
@@ -128,12 +131,12 @@ export class WhatsAppService {
     public async answerContact(phoneNumber: string, message: string) {
         const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
         const contact = await this.contactService.findContactByPhoneNumber(currentPhoneNumber, false)
-        const sentDetails = async () => {
-            const bills = await this.contactService.getBillsWithValideDueDateByPhoneNumber(currentPhoneNumber)
+        const sentDetails = async (type: BillType = BillType.Mensalidade) => {
+            const bills = (await this.contactService.getBillsWithValideDueDateByPhoneNumber(currentPhoneNumber)).filter(bill => bill.type === type)
             if (!bills.length) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
-                    text: 'Você não tem débitos de mensalidade na tesouraria'
+                    text: `Você não tem débitos de ${type} na tesouraria`
                 })
                 return
             }
@@ -142,32 +145,46 @@ export class WhatsAppService {
                     to: currentPhoneNumber,
                     text: bill.description
                 })
+
+                // find all parents
+                if (bill?.paymentIdListParent) {
+                    const billParents = await this.billService.getBillPaymentList(bill?.paymentIdListParent)
+                    if (billParents) {
+                        await this.sendMessage({
+                            to: currentPhoneNumber,
+                            text: billParents.description
+                        })
+                    }
+
+                }
             }
 
+
         }
-        const sentBill = async () => {
-            const bills = await this.contactService.getBillsWithValideDueDateByPhoneNumber(currentPhoneNumber)
+        const sentBill = async (type: BillType = BillType.Mensalidade) => {
+            const bills = (await this.contactService.getBillsWithValideDueDateByPhoneNumber(currentPhoneNumber)).filter(bill => bill.type === type)
 
             if (!bills?.length) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
-                    text: 'Você não tem débitos de mensalidade na tesouraria'
+                    text: `Você não tem débitos de ${type} na tesouraria`
                 })
                 return
             }
 
             for (const bill of bills) {
                 const effectiveDate = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(bill.effectiveDate)
+                const totalValue = parseFloat(bill.valuePayment.toString()).toLocaleString(undefined, { minimumFractionDigits: 2 })
                 await this.sendMessage({
                     to: currentPhoneNumber,
-                    text: `Segue o PIX da sua mensalidade de *${effectiveDate}*(mais possíveis acréscimos, atrasos e ou dependentes), no valor total de R$ ${(new Intl.NumberFormat('pt-BR').format(bill.value.toNumber()))}.`
+                    text: `Segue o PIX da sua ${type} de *${effectiveDate}*(mais possíveis acréscimos, atrasos e ou dependentes), no valor total de R$ ${totalValue}.`
                 })
                 await this.sendMessage({
                     to: currentPhoneNumber,
                     text: bill.pixQrCode,
                     buttons: [
                         {
-                            id: 'detalhes',
+                            id: type === 'Mensalidade' ? 'detalhes' : 'detalhesCooperativa',
                             title: 'Detalhes'
                         }
                     ]
@@ -201,10 +218,10 @@ export class WhatsAppService {
         }
 
         const callCooperative = async () => {
-            await this.sendMessage({
-                to: currentPhoneNumber,
-                text: 'Você não tem débitos de mensalidade na cooperativa'
-            })
+            sentBill(BillType.Cooperativa)
+        }
+        const sentDetailsCooperativa = async () => {
+            sentDetails(BillType.Cooperativa)
         }
         const callTreasurer = async () => {
 
@@ -231,6 +248,7 @@ export class WhatsAppService {
 
         const commands = {
             'detalhes': sentDetails,
+            'detalhescooperativa': sentDetailsCooperativa,
             'mensalidade': sentBill,
             'falarcomtesoureiro': callTreasurer,
             'cooperativa': callCooperative
