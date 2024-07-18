@@ -52,7 +52,7 @@ model Bill {
   dueDate          DateTime
   paymentDate      DateTime?
   description      String?
-  pixTaxId         String
+  pixTaxId         String?
   pixKey           String?
   pixQrCode        String?
   type             BillType @default(Mensalidade)

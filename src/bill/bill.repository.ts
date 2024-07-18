@@ -40,7 +40,11 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
                 pixCreatedAt: null,
                 pixExpiration: null,
                 paymentDate: null,
-                paymentValue: null
+                paymentValue: null,
+                pixQrCode: null,
+                pixTaxId: {
+                    not: null,
+                }
             },
             take,
             skip,

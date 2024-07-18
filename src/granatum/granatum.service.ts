@@ -8,12 +8,12 @@ import { ContactService } from 'src/contact/contact.service';
 import { v4 as uuid4 } from "uuid";
 import { BillService } from '../bill/bill.service';
 import SocioBuilder from './helpers/socioBuilder';
+import ClienteTipo from './types/clienteTipo';
 import ContaTipo from './types/contaTipo';
 import { Cliente } from './types/iCliente';
 import { Lancamento } from './types/iLancamento';
 import { Socio } from './types/iSocio';
 import LancamentoTipo from './types/lancamentoTipo';
-import ClienteTipo from './types/clienteTipo';
 
 
 @Injectable()
@@ -32,104 +32,102 @@ export class GranatumService {
     }
 
     async criarCobrancas(billType: BillType): Promise<Socio[]> {
-        try {
-            const clientes = await this.getClientes();
-            const tipos = [LancamentoTipo.Receber, LancamentoTipo.ReceberAtrasados];
-            const lancamentos = await this.getLancamentos(tipos, billType);
 
-            const telefoneToSocioMap = new Map<string, Socio>();
+        const clientes = await this.getClientes();
+        const tipos = [LancamentoTipo.Receber, LancamentoTipo.ReceberAtrasados];
+        const lancamentos = await this.getLancamentos(tipos, billType);
 
-            // Primeira passada para criar todos os sócios
-            const socios = clientes.map((cliente: Cliente) => {
-                const lancamentosCliente = lancamentos.filter((lanc: Lancamento) => lanc.pessoa_id === cliente.id);
-                const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente);
-                telefoneToSocioMap.set(socioObj.telefonePrincipal, socioObj);
-                return socioObj;
-            });
+        const telefoneToSocioMap = new Map<string, Socio>();
 
-            // Segunda passada para identificar sócios dependentes e preencher o socioPaiId
-            socios.map(socio => {
-                if (!socio.principal) {
-                    const socioPai = telefoneToSocioMap.get(socio.telefoneEnvio);
-                    if (socioPai) {
-                        socio.socioPaiId = socioPai.id;
-                    }
+        // Primeira passada para criar todos os sócios
+        const socios = clientes.map((cliente: Cliente) => {
+            const lancamentosCliente = lancamentos.filter((lanc: Lancamento) => lanc.pessoa_id === cliente.id);
+            const socioObj = new SocioBuilder().preencherDados(cliente, lancamentosCliente);
+            telefoneToSocioMap.set(socioObj.telefonePrincipal, socioObj);
+            return socioObj;
+        });
 
-                }
-                return socio
-            })
-
-            socios.map(socio => {
-                if (!socio.principal && !socio.socioPaiId) {
-                    socio.status = 'Contato dependente não encontrou o contato principal'
-                }
-                return socio
-            });
-
-            const contacts = [];
-            // Criação dos registros de cobrança para sócios principais
-            for (const socio of socios) {
-                const clientData = {
-                    crmId: socio.id,
-                    mainCrmId: socio?.socioPaiId,
-                    name: socio?.nome ?? '',
-                    CPF: socio.cpf,
-                    address: socio.logradouro,
-                    state: socio.uf,
-                    city: socio.cidade,
-                    postalCode: socio.cep,
-                    phoneNumber: socio.telefoneEnvio,
-                    status: socio.status
+        // Segunda passada para identificar sócios dependentes e preencher o socioPaiId
+        socios.map(socio => {
+            if (!socio.principal) {
+                const socioPai = telefoneToSocioMap.get(socio.telefoneEnvio);
+                if (socioPai) {
+                    socio.socioPaiId = socioPai.id;
                 }
 
-                const contact = await this.contactService.createOrUpdate(clientData)
+            }
+            return socio
+        })
+
+        socios.map(socio => {
+            if (!socio.principal && !socio.socioPaiId) {
+                socio.status = 'Contato dependente não encontrou o contato principal'
+            }
+            return socio
+        });
+
+        const contacts = [];
+        // Criação dos registros de cobrança para sócios principais
+        for (const socio of socios) {
+            const clientData = {
+                crmId: socio.id,
+                mainCrmId: socio?.socioPaiId,
+                name: socio?.nome ?? '',
+                CPF: socio.cpf,
+                address: socio.logradouro,
+                state: socio.uf,
+                city: socio.cidade,
+                postalCode: socio.cep,
+                phoneNumber: socio.telefoneEnvio,
+                status: socio.status
+            }
+
+            const contact = await this.contactService.createOrUpdate(clientData)
+            if (contact) {
                 if (contact) {
-                    if (contact) {
-                        contacts.push({
-                            ...contact,
-                            valorTotal: socio.valorTotal
-                        });
-                    }
-                }
-            }   
-          
-            for (const contact of contacts) {
-                if (contact.valorTotal > 0) {
-                    let valuePayment = contact.valorTotal;
-                    
-                    // Filtra e soma os valores dos dependentes
-                    if (contact.mainCrmId === null) {
-                        for (const dependent of contacts) {
-                            if (dependent.mainCrmId === contact.crmId) {
-                                valuePayment += dependent.valorTotal;
-                            }
-                        }
-                    } else {
-                        valuePayment = 0;
-                    }
-
-                    let socio = socios.find(socio => socio.id === contact.crmId)
-                    if (socio.valorTotal > 0) {
-                        await this.billService.create({
-                            contactId: contact.id,
-                            type: billType,
-                            value: socio.valorTotal,
-                            valuePayment: valuePayment,
-                            paymentIdList: socio.idsLancamentos.join(','),
-                            pixTaxId: uuid4().replaceAll('-', ''),
-                            description: socio.mensagem,
-                            dueDate: new Date(socio.dataVencimento),
-                            effectiveDate: new Date(socio.dataCompetencia),
-                            status: BillStatusType.Pendente
-                        });
-                    }
+                    contacts.push({
+                        ...contact,
+                        valorTotal: socio.valorTotal
+                    });
                 }
             }
-            return socios;
-        } catch (error: any) {
-            console.error('Erro ao processar sócios:', error.message);
-            throw error;
         }
+
+        for (const contact of contacts) {
+            if (contact.valorTotal > 0) {
+                let valuePayment = contact.valorTotal
+
+                // Filtra e soma os valores dos dependentes
+                if (contact.mainCrmId === null) {
+                    for (const dependent of contacts) {
+                        if (dependent.mainCrmId === contact.crmId) {
+                            valuePayment += dependent.valorTotal
+                        }
+                    }
+                } else {
+                    valuePayment = 0;
+                }
+                let socio = socios.find(socio => socio.id === contact.crmId)
+                if (socio.valorTotal > 0) {
+
+
+                    await this.billService.create({
+                        contactId: contact.id,
+                        type: billType,
+                        value: socio.valorTotal,
+                        valuePayment,
+                        paymentIdList: socio.idsLancamentos.join(','),
+                        pixTaxId: valuePayment > 0 ? uuid4().replaceAll('-', '') : null,
+                        description: socio.mensagem,
+                        dueDate: new Date(socio.dataVencimento),
+                        effectiveDate: new Date(socio.dataCompetencia),
+                        status: BillStatusType.Pendente
+                    });
+                }
+            }
+        }
+        return socios;
+
     }
 
     async getClientes(): Promise<Cliente[]> {
@@ -137,10 +135,10 @@ export class GranatumService {
             const response = await axios.get<Cliente[]>(`${this.apiUrl}clientes`, {
                 params: { access_token: this.token }
             });
-            
+
             // Filtrar clientes com classificacao_cliente_id = 1
             const clientesFiltrados = response.data.filter(cliente => cliente.classificacao_cliente_id === ClienteTipo.SocioUDV);
-            
+
             return clientesFiltrados;
         } catch (error: any) {
             // Tratar o erro adequadamente e disparar um novo erro
@@ -156,7 +154,7 @@ export class GranatumService {
     }
 
     async getLancamentos(tipos: string[], billType: BillType): Promise<Lancamento[]> {
-      
+
         const contas = billType === BillType.Mensalidade ? [ContaTipo.FluxoDeCaixa, ContaTipo.Caixa] : [ContaTipo.Cooperativa];
 
         const dataAtual = dayjs()

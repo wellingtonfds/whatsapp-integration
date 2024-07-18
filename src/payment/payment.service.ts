@@ -33,27 +33,6 @@ export class PaymentService {
         do {
             for (const bill of listBill) {
                 const { contact, ...billData } = bill
-                let mainContact = contact
-                if (contact?.mainCrmId) {
-                    mainContact = await this.contactService.findContactByUniqueKey(null, null, null, contact.mainCrmId)
-                    if (!mainContact) {
-                        this.logger.error({
-                            action: 'registerPixKeys',
-                            msg: 'usuário sem contato pai',
-                            contact
-                        })
-                        continue
-                    }
-                }
-
-                if (!contact?.CPF) {
-                    this.logger.error({
-                        action: 'registerPixKeys',
-                        msg: 'usuário sem CPF',
-                        contact
-                    })
-                    continue
-                }
 
                 const effectiveDate = (new Intl.DateTimeFormat('pt-BR', { month: 'long', year: '2-digit' })).format(bill.effectiveDate)
                 const currentDate = new Date()
@@ -67,27 +46,27 @@ export class PaymentService {
                     dueData = newDate.toISOString().split('T')[0]
                 }
 
-
-                const sicoobPixData = await this.sicoobService.registerPix({
+                const payload = {
                     calendario: {
                         dataDeVencimento: dueData,
                         validadeAposVencimento: dueDateDays
                     },
                     txid: bill.pixTaxId,
                     devedor: {
-                        logradouro: mainContact.address,
-                        cidade: mainContact.city,
-                        uf: mainContact.state,
-                        cep: mainContact.postalCode,
-                        cpf: mainContact.CPF,
-                        nome: mainContact.name
+                        logradouro: contact.address,
+                        cidade: contact.city,
+                        uf: contact.state,
+                        cep: contact.postalCode,
+                        cpf: contact.CPF,
+                        nome: contact.name
                     },
                     valor: {
-                        original: bill.value.toString()
+                        original: parseFloat(bill.valuePayment.toString()).toLocaleString(undefined, { minimumFractionDigits: 2 })
                     },
                     chave: this.configService.get('payment.pixKey'),
-                    solicitacaoPagador: `Mensalidade de  ${effectiveDate}`,
-                })
+                    solicitacaoPagador: `${bill.type} de  ${effectiveDate}`,
+                }
+                const sicoobPixData = await this.sicoobService.registerPix(payload)
 
                 try {
 
