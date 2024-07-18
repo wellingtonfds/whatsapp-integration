@@ -119,6 +119,7 @@ export class PaymentService {
 
             if (bill) {
                 this.logger.verbose(`try down payment ${bill.paymentIdList}`)
+
                 await this.granatumService.baixarPagamentos(bill.paymentIdList)
 
                 // if exist payment parent
@@ -133,6 +134,8 @@ export class PaymentService {
                                 ...billData,
                                 paymentValue: Number(bill.value),
                                 paymentDate: new Date(pix.horario),
+                                status: 'Pago',
+                                crmUpdate: new Date()
 
                             })
                         }
@@ -146,6 +149,8 @@ export class PaymentService {
                     ...bill,
                     paymentValue: Number(pix.valor),
                     paymentDate: new Date(pix.horario),
+                    status: 'Pago',
+                    crmUpdate: new Date()
 
                 })
                 this.logger.verbose(`send payment confirmation for ${bill.id}`)
