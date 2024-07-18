@@ -58,6 +58,7 @@ model Bill {
   type             BillType @default(Mensalidade)
   pixCreatedAt     DateTime?
   paymentValue     Decimal?
+  paymentIdListParent    String?
   pixExpiration    DateTime?
   crmUpdate        DateTime?
   contact          Contact         @relation(fields: [contactId], references: [id])

@@ -116,13 +116,31 @@ export class PaymentService {
                 return
             }
             const { contact, ...bill } = billData
-            let mainContact = contact
-            if (contact?.mainCrmId) {
-                mainContact = await this.contactService.findContactByUniqueKey(undefined, undefined, undefined, contact?.mainCrmId)
-            }
+
             if (bill) {
                 this.logger.verbose(`try down payment ${bill.paymentIdList}`)
                 await this.granatumService.baixarPagamentos(bill.paymentIdList)
+
+                // if exist payment parent
+                try {
+                    if (bill?.paymentIdListParent) {
+                        await this.granatumService.baixarPagamentos(bill.paymentIdListParent)
+
+                        const billParent = await this.billService.getBillPaymentList(bill.paymentIdListParent)
+                        if (billParent) {
+                            const { contact: contactParent, ...billData } = billParent
+                            await this.billService.update({
+                                ...billData,
+                                paymentValue: Number(bill.value),
+                                paymentDate: new Date(pix.horario),
+
+                            })
+                        }
+                    }
+                } catch (e) {
+                    this.logger.error(`fail when trying to payment the parent paymentIds ${bill.paymentIdListParent}`)
+                }
+
                 this.logger.verbose(`try update bill on database ${bill.id}`)
                 await this.billService.update({
                     ...bill,
@@ -132,11 +150,11 @@ export class PaymentService {
                 })
                 this.logger.verbose(`send payment confirmation for ${bill.id}`)
                 this.notificationService.sendWhatsAppMessage({
-                    to: mainContact.phoneNumber,
+                    to: contact.phoneNumber,
                     template: 'mensalidade_recebida',
                     parameters: [
-                        mainContact.name,
-                        (new Intl.NumberFormat('pt-BR').format(Number(pix.valor))),
+                        contact.name,
+                        (new Intl.NumberFormat('pt-BR').format(Number(bill.valuePayment))),
                     ]
 
                 })

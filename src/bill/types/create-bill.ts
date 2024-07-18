@@ -1,5 +1,4 @@
-import { BillType } from "@prisma/client"
-import { BillStatusType } from "@prisma/client"
+import { BillStatusType, BillType } from "@prisma/client"
 
 export interface CreateBill {
     contactId: bigint | number
@@ -9,6 +8,7 @@ export interface CreateBill {
     paymentIdList: string
     pixTaxId: string
     description?: string
+    paymentIdListParent?: string
     dueDate: Date
     effectiveDate: Date
     status?: BillStatusType

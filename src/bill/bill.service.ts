@@ -84,6 +84,9 @@ export class BillService {
     public async getBillByTxId(txId: string): Promise<ContactWithBill> {
         return this.billRepository.getBillByTxId(txId)
     }
+    public async getBillPaymentList(ids: string): Promise<ContactWithBill> {
+        return this.billRepository.getBillByPaymentList(ids)
+    }
     public async update(bill: Prisma.BillUpdateInput): Promise<Bill> {
         return this.billRepository.update(bill)
     }

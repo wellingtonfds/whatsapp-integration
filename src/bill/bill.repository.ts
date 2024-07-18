@@ -132,6 +132,17 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
         })
     }
 
+    public async getBillPaymentList(ids: string): Promise<ContactWithBill> {
+        return this.bill.findFirst({
+            where: {
+                paymentIdList: ids
+            },
+            include: {
+                contact: true
+            }
+        })
+    }
+
     public async update(bill: Prisma.BillUpdateInput): Promise<Bill> {
 
         return this.bill.update({

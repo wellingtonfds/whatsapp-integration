@@ -96,12 +96,16 @@ export class GranatumService {
         for (const contact of contacts) {
             if (contact.valorTotal > 0) {
                 let valuePayment = contact.valorTotal
-
+                let paymentIdListParent = null
                 // Filtra e soma os valores dos dependentes
                 if (contact.mainCrmId === null) {
                     for (const dependent of contacts) {
                         if (dependent.mainCrmId === contact.crmId) {
                             valuePayment += dependent.valorTotal
+                            const idPayment = socios.find(s => s.id === dependent.crmId)
+                            if (idPayment) {
+                                paymentIdListParent = idPayment.idsLancamentos.join(',')
+                            }
                         }
                     }
                 } else {
@@ -119,6 +123,7 @@ export class GranatumService {
                         paymentIdList: socio.idsLancamentos.join(','),
                         pixTaxId: valuePayment > 0 ? uuid4().replaceAll('-', '') : null,
                         description: socio.mensagem,
+                        paymentIdListParent,
                         dueDate: new Date(socio.dataVencimento),
                         effectiveDate: new Date(socio.dataCompetencia),
                         status: BillStatusType.Pendente
