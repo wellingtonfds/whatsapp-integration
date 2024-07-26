@@ -249,6 +249,7 @@ export class WhatsAppService {
         const commands = {
             'detalhes': sentDetails,
             'detalhescooperativa': sentDetailsCooperativa,
+            'verdetalhescooperativa': sentDetailsCooperativa,
             'mensalidade': sentBill,
             'falarcomtesoureiro': callTreasurer,
             'cooperativa': callCooperative
