@@ -123,7 +123,7 @@ class SocioBuilder {
         let telefone = '';
         const telefoneCadastro = cliente.telefone.replace(/\D/g, '');
         if (telefoneCadastro && telefoneCadastro.length >= 8 && !isNaN(parseInt(telefoneCadastro, 10))) {
-            telefone = `55${telefoneCadastro}`
+            telefone = `${telefoneCadastro}`
         }
         return telefone;
     }
@@ -153,7 +153,7 @@ class SocioBuilder {
 
             this.socio.valorTotal += valor
 
-             // Adicionando o ID do lançamento ao array, com ou sem o composto ID
+            // Adicionando o ID do lançamento ao array, com ou sem o composto ID
             if (lancamento.lancamento_composto_id) {
                 this.socio.idsLancamentos.push(`${lancamento.id}-${lancamento.lancamento_composto_id}`);
             } else {
