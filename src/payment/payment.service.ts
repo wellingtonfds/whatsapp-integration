@@ -155,9 +155,9 @@ export class PaymentService {
                 })
                 this.logger.verbose(`send payment confirmation for ${bill.id}`)
                 const totalPayment = parseFloat(bill.valuePayment.toString()).toLocaleString(undefined, { minimumFractionDigits: 2 })
-                this.notificationService.sendWhatsAppMessage({
+                await this.notificationService.sendWhatsAppMessage({
                     to: contact.phoneNumber,
-                    template: 'mensalidade_recebida',
+                    template: bill.type === 'Mensalidade' ? 'mensalidade_recebida' : 'cooperativa_recebida',
                     parameters: [
                         contact.name,
                         totalPayment,

@@ -67,6 +67,25 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
     }
 
 
+    public async getListBillWithoutPay(take = 10, skip = 0): Promise<ContactWithBill[]> {
+        return this.bill.findMany({
+            where: {
+                paymentDate: null,
+                paymentValue: null,
+                status: "Pendente",
+                pixTaxId: { not: null },
+                pixQrCode: { not: null },
+
+            },
+            take,
+            skip,
+            include: {
+                contact: true
+            }
+        })
+    }
+
+
     public async getBillWithPixKeyAndNotPayYet(take = 10, skip = 0): Promise<ContactWithBill[]> {
         const gte = new Date()
         return this.bill.findMany({

@@ -130,9 +130,9 @@ export class WhatsAppService {
 
     public async answerContact(phoneNumber: string, message: string) {
         const currentPhoneNumber = addNinthDigitOnPhoneNumber(phoneNumber)
-        const contact = await this.contactService.findContactByPhoneNumber(currentPhoneNumber, false)
+        const contact = await this.contactService.findContactByPhoneNumber(currentPhoneNumber, false, true)
         const sentDetails = async (type: BillType = BillType.Mensalidade) => {
-            const bills = (await this.contactService.getBillsWithValideDueDateByPhoneNumber(currentPhoneNumber)).filter(bill => bill.type === type)
+            const bills = (await this.billService.getBillWithContactByPhoneNumber(currentPhoneNumber)).filter(bill => bill.type === type)
             if (!bills.length) {
                 await this.sendMessage({
                     to: currentPhoneNumber,
@@ -162,7 +162,7 @@ export class WhatsAppService {
 
         }
         const sentBill = async (type: BillType = BillType.Mensalidade) => {
-            const bills = (await this.contactService.getBillsWithValideDueDateByPhoneNumber(currentPhoneNumber)).filter(bill => bill.type === type)
+            const bills = (await this.billService.getBillWithContactByPhoneNumber(currentPhoneNumber)).filter(bill => bill.type === type)
 
             if (!bills?.length) {
                 await this.sendMessage({

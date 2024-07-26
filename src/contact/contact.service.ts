@@ -11,8 +11,8 @@ export class ContactService {
     public async findByCPF(cpf: string): Promise<Contact> {
         return this.contactRepository.findByCPF(cpf)
     }
-    public async findContactByPhoneNumber(phoneNumber: string, includeBill = false): Promise<ContactWithBill> {
-        return this.contactRepository.findContactByPhoneNumber(phoneNumber, includeBill)
+    public async findContactByPhoneNumber(phoneNumber: string, includeBill = false, mainContact = false): Promise<ContactWithBill> {
+        return this.contactRepository.findContactByPhoneNumber(phoneNumber, includeBill, mainContact)
     }
     public async findContactByUniqueKey(cpf: string, email: string, phoneNumber: string, crmId: number): Promise<Contact> {
         return this.contactRepository.findContactByUniqueKey(cpf, email, phoneNumber, crmId)
@@ -37,6 +37,9 @@ export class ContactService {
 
     }
 
+    /**
+     * @deprecated
+     */
     public async getBillsWithValideDueDateByPhoneNumber(findContactByPhoneNumber: string): Promise<Bill[]> {
 
         const findContactWithBills = await this.findContactByPhoneNumber(findContactByPhoneNumber, true)
