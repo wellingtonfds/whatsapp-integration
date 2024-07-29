@@ -162,7 +162,7 @@ export class WhatsAppService {
 
         }
         const sentBill = async (type: BillType = BillType.Mensalidade) => {
-            const bills = (await this.billService.getBillWithContactByPhoneNumber(currentPhoneNumber)).filter(bill => bill.type === type)
+            const bills = (await this.billService.getBillWithContactByPhoneNumber(currentPhoneNumber)).filter(bill => bill.type === type && !bill.contact.mainCrmId)
 
             if (!bills?.length) {
                 await this.sendMessage({
