@@ -145,18 +145,6 @@ export class WhatsAppService {
                     to: currentPhoneNumber,
                     text: bill.description
                 })
-
-                // find all parents
-                if (bill?.paymentIdListParent) {
-                    const billParents = await this.billService.getBillPaymentList(bill?.paymentIdListParent)
-                    if (billParents) {
-                        await this.sendMessage({
-                            to: currentPhoneNumber,
-                            text: billParents.description
-                        })
-                    }
-
-                }
             }
 
 

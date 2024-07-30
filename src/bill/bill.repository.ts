@@ -132,7 +132,8 @@ export class BillRepository extends PrismaClient implements OnModuleInit {
             where: {
                 contact: {
                     phoneNumber
-                }
+                },
+                status: 'Pendente'
             },
             include: {
                 contact: true
